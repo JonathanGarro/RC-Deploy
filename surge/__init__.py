@@ -1,0 +1,3 @@
+"""
+Surge app initialization.
+"""

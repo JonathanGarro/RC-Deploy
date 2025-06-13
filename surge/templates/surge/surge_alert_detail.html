@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ alert.message }} | IFRC Surge Alert System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'surge:alert_list' %}">Surge Alerts</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Alert {{ alert.api_id }}</li>
+            </ol>
+        </nav>
+        <h1>{{ alert.message }}</h1>
+        <p class="text-muted">Created: {{ alert.created_at|date:"Y-m-d H:i" }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Alert Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">ID:</div>
+                    <div class="col-md-8">{{ alert.api_id }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Message:</div>
+                    <div class="col-md-8">{{ alert.message }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Country:</div>
+                    <div class="col-md-8">{% if alert.country %}{{ alert.country.name }}{% else %}N/A{% endif %}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Status:</div>
+                    <div class="col-md-8">{{ alert.molnix_status_display }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Type:</div>
+                    <div class="col-md-8">{{ alert.atype_display }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Category:</div>
+                    <div class="col-md-8">{{ alert.category_display }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Molnix ID:</div>
+                    <div class="col-md-8">{{ alert.molnix_id }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Operation:</div>
+                    <div class="col-md-8">{{ alert.operation|default:"N/A" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Deployment Needed:</div>
+                    <div class="col-md-8">{{ alert.deployment_needed|yesno:"Yes,No" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Private:</div>
+                    <div class="col-md-8">{{ alert.is_private|yesno:"Yes,No" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Dates</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Created:</div>
+                    <div class="col-md-8">{{ alert.created_at|date:"Y-m-d H:i" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Opens:</div>
+                    <div class="col-md-8">{{ alert.opens|date:"Y-m-d H:i"|default:"N/A" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Closes:</div>
+                    <div class="col-md-8">{{ alert.closes|date:"Y-m-d H:i"|default:"N/A" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Start:</div>
+                    <div class="col-md-8">{{ alert.start|date:"Y-m-d H:i"|default:"N/A" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">End:</div>
+                    <div class="col-md-8">{{ alert.end|date:"Y-m-d H:i"|default:"N/A" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Last Updated:</div>
+                    <div class="col-md-8">{{ alert.last_updated|date:"Y-m-d H:i" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        {% if alert.country %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Country Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-5 fw-bold">Name:</div>
+                    <div class="col-md-7">{{ alert.country.name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-5 fw-bold">ISO:</div>
+                    <div class="col-md-7">{{ alert.country.iso }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-5 fw-bold">ISO3:</div>
+                    <div class="col-md-7">{{ alert.country.iso3 }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-5 fw-bold">Society:</div>
+                    <div class="col-md-7">{{ alert.country.society_name|default:"N/A" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-5 fw-bold">Region:</div>
+                    <div class="col-md-7">{{ alert.country.region }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Tags</h5>
+            </div>
+            <div class="card-body">
+                {% if alert.molnix_tags.all %}
+                    <div class="list-group">
+                        {% for tag in alert.molnix_tags.all %}
+                            <div class="list-group-item">
+                                <h6 class="mb-1">{{ tag.name }}</h6>
+                                <p class="mb-1 small text-muted">{{ tag.description|default:"" }}</p>
+                                {% if tag.groups %}
+                                    <div class="mt-1">
+                                        {% for group in tag.groups %}
+                                            <span class="badge bg-secondary">{{ group }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No tags available.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="d-grid gap-2">
+            <a href="{% url 'surge:alert_list' %}" class="btn btn-secondary">Back to List</a>
+            <a href="/admin/surge/surgealert/{{ alert.id }}/change/" class="btn btn-primary">Edit in Admin</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
