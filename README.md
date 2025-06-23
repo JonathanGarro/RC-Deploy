@@ -35,8 +35,8 @@ A Django application that periodically fetches surge alert data from the IFRC AP
 
 1. Clone the repository:
    ```
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone github.com/JonathanGarro/RC-Deploy
+   cd ~/RC-Deploy
    ```
 
 2. Start the Docker containers:
@@ -63,8 +63,8 @@ A Django application that periodically fetches surge alert data from the IFRC AP
 
 1. Clone the repository:
    ```
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone github.com/JonathanGarro/RC-Deploy
+   cd ~/RC-Deploy
    ```
 
 2. Create and activate a virtual environment:
