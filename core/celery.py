@@ -4,7 +4,6 @@ Celery configuration for core project.
 
 import os
 from celery import Celery
-from surge.celery import CELERYBEAT_SCHEDULE
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
@@ -18,5 +17,13 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
-# Configure the Celery beat schedule
-app.conf.beat_schedule = CELERYBEAT_SCHEDULE
+# Configure the Celery beat scheduler to use the database scheduler
+app.conf.beat_scheduler = 'scheduler.scheduler.DatabaseScheduler'
+
+# Import the default schedule as a fallback
+try:
+    from surge.celery import CELERYBEAT_SCHEDULE
+    # Use the default schedule if no tasks are defined in the database
+    app.conf.beat_schedule = CELERYBEAT_SCHEDULE
+except ImportError:
+    app.conf.beat_schedule = {}
