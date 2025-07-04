@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }}'s Profile - IFRC Surge Alert System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{{ user.username }}'s Profile</h1>
+            
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Phone Number:</strong> {{ profile.phone_number|default:"Not provided" }}</p>
+                    <p><strong>Accept SMS:</strong> {% if profile.accept_sms %}Yes{% else %}No{% endif %}</p>
+                    <p><strong>Closest Airport:</strong> {{ profile.closest_airport|default:"Not provided" }}</p>
+                    <p><strong>Bio:</strong> {{ profile.bio|default:"Not provided" }}</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Languages</h5>
+                </div>
+                <div class="card-body">
+                    {% if profile.language_proficiencies.all %}
+                    <ul class="list-group">
+                        {% for lang_prof in profile.language_proficiencies.all %}
+                        <li class="list-group-item">
+                            {{ lang_prof.language.name }} - {{ lang_prof.get_proficiency_display }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No languages specified.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title">Preferences</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Preferred Regions:</strong></p>
+                    {% if profile.preferred_regions.all %}
+                    <ul class="list-group">
+                        {% for region in profile.preferred_regions.all %}
+                        <li class="list-group-item">{{ region.name }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No preferred regions specified.</p>
+                    {% endif %}
+                    
+                    <p class="mt-3"><strong>Restricted Countries:</strong></p>
+                    {% if profile.restricted_countries.all %}
+                    <ul class="list-group">
+                        {% for country in profile.restricted_countries.all %}
+                        <li class="list-group-item">{{ country.name }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No restricted countries specified.</p>
+                    {% endif %}
+                    
+                    <p class="mt-3"><strong>Qualified Profiles:</strong></p>
+                    {% if profile.qualified_profiles.all %}
+                    <ul class="list-group">
+                        {% for profile in profile.qualified_profiles.all %}
+                        <li class="list-group-item">{{ profile.name }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No qualified profiles specified.</p>
+                    {% endif %}
+                    
+                    <p class="mt-3"><strong>Rotation Availability:</strong> {{ profile.get_rotation_availability_display }}</p>
+                </div>
+            </div>
+            
+            <a href="{% url 'users:profile_update' %}" class="btn btn-primary">Edit Profile</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+/* Custom styles for the admin login page */
+body.login {
+    background-color: #f8f9fa;
+}
+
+.login #header {
+    background-color: #417690;
+    color: #fff;
+    padding: 15px 20px;
+}
+
+.login #content {
+    padding: 20px;
+}
+
+.login .form-row {
+    padding: 10px 0;
+}
+
+.login .form-row label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.login .form-row input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.login .submit-row {
+    padding: 10px 0;
+    text-align: right;
+}
+
+.login .submit-row input {
+    background-color: #417690;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.login .submit-row input:hover {
+    background-color: #2c5170;
+}
+
+.login .errornote {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}

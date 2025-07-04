@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Update Profile - IFRC Surge Alert System{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .formset-row {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+    .delete-row {
+        color: #dc3545;
+    }
+    .select2-container {
+        width: 100% !important;
+    }
+    .select2-selection {
+        height: 38px !important;
+        padding: 5px !important;
+        border: 1px solid #ced4da !important;
+        border-radius: 0.25rem !important;
+    }
+    .select2-selection__arrow {
+        height: 36px !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Update Your Profile</h1>
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                {{ user_form.first_name }}
+                                {% if user_form.first_name.errors %}
+                                <div class="text-danger">
+                                    {{ user_form.first_name.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                {{ user_form.last_name }}
+                                {% if user_form.last_name.errors %}
+                                <div class="text-danger">
+                                    {{ user_form.last_name.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                                {{ profile_form.phone_number }}
+                                {% if profile_form.phone_number.errors %}
+                                <div class="text-danger">
+                                    {{ profile_form.phone_number.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check mt-4">
+                                    {{ profile_form.accept_sms }}
+                                    <label class="form-check-label" for="{{ profile_form.accept_sms.id_for_label }}">
+                                        Accept SMS Messages
+                                    </label>
+                                    {% if profile_form.accept_sms.errors %}
+                                    <div class="text-danger">
+                                        {{ profile_form.accept_sms.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ profile_form.closest_airport.id_for_label }}" class="form-label">Closest Airport</label>
+                            {{ profile_form.closest_airport }}
+                            {% if profile_form.closest_airport.errors %}
+                            <div class="text-danger">
+                                {{ profile_form.closest_airport.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ profile_form.bio.id_for_label }}" class="form-label">Bio</label>
+                            {{ profile_form.bio }}
+                            {% if profile_form.bio.errors %}
+                            <div class="text-danger">
+                                {{ profile_form.bio.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">Languages</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ language_formset.management_form }}
+
+                        <div id="language-formset">
+                            {% for form in language_formset %}
+                            <div class="formset-row">
+                                {{ form.id }}
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.language.id_for_label }}" class="form-label">Language</label>
+                                        {{ form.language }}
+                                        {% if form.language.errors %}
+                                        <div class="text-danger">
+                                            {{ form.language.errors }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.proficiency.id_for_label }}" class="form-label">Proficiency</label>
+                                        {{ form.proficiency }}
+                                        {% if form.proficiency.errors %}
+                                        <div class="text-danger">
+                                            {{ form.proficiency.errors }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if language_formset.can_delete %}
+                                <div class="form-check">
+                                    {{ form.DELETE }}
+                                    <label class="form-check-label delete-row" for="{{ form.DELETE.id_for_label }}">
+                                        Delete this language
+                                    </label>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="button" id="add-language" class="btn btn-secondary">Add Another Language</button>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'users:profile' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addButton = document.getElementById('add-language');
+        const formsetContainer = document.getElementById('language-formset');
+        const totalForms = document.getElementById('id_language_proficiencies-TOTAL_FORMS');
+
+        addButton.addEventListener('click', function() {
+            const formCount = parseInt(totalForms.value);
+            const newForm = formsetContainer.querySelector('.formset-row').cloneNode(true);
+
+            // Update form index
+            newForm.innerHTML = newForm.innerHTML.replace(/-\d+-/g, `-${formCount}-`);
+
+            // Clear input values
+            newForm.querySelectorAll('input:not([type=hidden]), select').forEach(input => {
+                input.value = '';
+            });
+
+            // Uncheck DELETE checkbox if it exists
+            const deleteCheckbox = newForm.querySelector('input[type=checkbox]');
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = false;
+            }
+
+            formsetContainer.appendChild(newForm);
+            totalForms.value = formCount + 1;
+        });
+
+        // Initialize Select2 for airport selection
+        $(document).ready(function() {
+            $('.airport-select').select2({
+                placeholder: 'Start typing to search airports...',
+                allowClear: true,
+                minimumInputLength: 2,
+                ajax: {
+                    url: '{% url "users:search_airports" %}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data.results
+                        };
+                    },
+                    cache: true
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
