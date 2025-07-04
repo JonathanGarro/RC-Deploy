@@ -1,0 +1,133 @@
+/* Django admin dashboard styles */
+.dashboard .module {
+  margin-bottom: 20px;
+  background: var(--body-bg);
+  border: 1px solid var(--hairline-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dashboard .module h2 {
+  background: var(--primary);
+  color: var(--primary-fg);
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0;
+  padding: 8px 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dashboard .module h3 {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+.dashboard .module table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+}
+
+.dashboard .module table th {
+  font-weight: bold;
+  font-size: 13px;
+  text-align: left;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+.dashboard .module table td {
+  padding: 8px 16px;
+  font-size: 13px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+.dashboard .module table tr:last-child td {
+  border-bottom: none;
+}
+
+.dashboard .module table tr:hover td {
+  background-color: var(--darkened-bg);
+}
+
+.dashboard .module a:link, .dashboard .module a:visited {
+  color: var(--link-fg);
+  text-decoration: none;
+}
+
+.dashboard .module a:focus, .dashboard .module a:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+.dashboard .recent-actions {
+  border: 1px solid var(--hairline-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dashboard .recent-actions h2 {
+  background: var(--primary);
+  color: var(--primary-fg);
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0;
+  padding: 8px 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dashboard .recent-actions h3 {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+.dashboard .recent-actions ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard .recent-actions li {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+.dashboard .recent-actions li:last-child {
+  border-bottom: none;
+}
+
+.dashboard .recent-actions .timesince {
+  color: var(--body-quiet-color);
+  font-size: 12px;
+}
+
+.dashboard .app-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.dashboard .app-item {
+  flex: 1 0 300px;
+  max-width: 100%;
+}
+
+/* Dashboard mobile adjustments */
+@media (max-width: 767px) {
+  .dashboard .app-list {
+    flex-direction: column;
+  }
+
+  .dashboard .app-item {
+    flex: 1 0 100%;
+  }
+}

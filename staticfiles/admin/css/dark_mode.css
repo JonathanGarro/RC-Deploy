@@ -1,0 +1,132 @@
+/* Django admin dark mode styles */
+:root {
+  --darkmode-primary: #264b5d;
+  --darkmode-secondary: #1f3a47;
+  --darkmode-accent: #f5dd5d;
+  --darkmode-primary-fg: #fff;
+  --darkmode-body-fg: #eeeeee;
+  --darkmode-body-bg: #121212;
+  --darkmode-body-quiet-color: #e0e0e0;
+  --darkmode-body-loud-color: #ffffff;
+  --darkmode-header-color: #ffc;
+  --darkmode-header-branding-color: var(--darkmode-accent);
+  --darkmode-header-bg: var(--darkmode-secondary);
+  --darkmode-header-link-color: var(--darkmode-primary-fg);
+  --darkmode-breadcrumbs-fg: #c4dce8;
+  --darkmode-breadcrumbs-link-fg: var(--darkmode-body-bg);
+  --darkmode-breadcrumbs-bg: var(--darkmode-primary);
+  --darkmode-link-fg: #81d4fa;
+  --darkmode-link-hover-color: #4fc3f7;
+  --darkmode-link-selected-fg: #29b6f6;
+  --darkmode-hairline-color: #333;
+  --darkmode-border-color: #4f4f4f;
+  --darkmode-error-fg: #e57373;
+  --darkmode-message-success-bg: #43a047;
+  --darkmode-message-warning-bg: #ef6c00;
+  --darkmode-message-error-bg: #c62828;
+  --darkmode-darkened-bg: #212121;
+  --darkmode-selected-bg: #1976d2;
+  --darkmode-selected-row: #0d47a1;
+  --darkmode-button-fg: #fff;
+  --darkmode-button-bg: var(--darkmode-primary);
+  --darkmode-button-hover-bg: #1c3744;
+  --darkmode-default-button-bg: var(--darkmode-secondary);
+  --darkmode-default-button-hover-bg: #152c36;
+  --darkmode-close-button-bg: #333;
+  --darkmode-close-button-hover-bg: #666;
+  --darkmode-delete-button-bg: #c62828;
+  --darkmode-delete-button-hover-bg: #b71c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: var(--darkmode-primary);
+    --secondary: var(--darkmode-secondary);
+    --accent: var(--darkmode-accent);
+    --primary-fg: var(--darkmode-primary-fg);
+    --body-fg: var(--darkmode-body-fg);
+    --body-bg: var(--darkmode-body-bg);
+    --body-quiet-color: var(--darkmode-body-quiet-color);
+    --body-loud-color: var(--darkmode-body-loud-color);
+    --header-color: var(--darkmode-header-color);
+    --header-branding-color: var(--darkmode-header-branding-color);
+    --header-bg: var(--darkmode-header-bg);
+    --header-link-color: var(--darkmode-header-link-color);
+    --breadcrumbs-fg: var(--darkmode-breadcrumbs-fg);
+    --breadcrumbs-link-fg: var(--darkmode-breadcrumbs-link-fg);
+    --breadcrumbs-bg: var(--darkmode-breadcrumbs-bg);
+    --link-fg: var(--darkmode-link-fg);
+    --link-hover-color: var(--darkmode-link-hover-color);
+    --link-selected-fg: var(--darkmode-link-selected-fg);
+    --hairline-color: var(--darkmode-hairline-color);
+    --border-color: var(--darkmode-border-color);
+    --error-fg: var(--darkmode-error-fg);
+    --message-success-bg: var(--darkmode-message-success-bg);
+    --message-warning-bg: var(--darkmode-message-warning-bg);
+    --message-error-bg: var(--darkmode-message-error-bg);
+    --darkened-bg: var(--darkmode-darkened-bg);
+    --selected-bg: var(--darkmode-selected-bg);
+    --selected-row: var(--darkmode-selected-row);
+    --button-fg: var(--darkmode-button-fg);
+    --button-bg: var(--darkmode-button-bg);
+    --button-hover-bg: var(--darkmode-button-hover-bg);
+    --default-button-bg: var(--darkmode-default-button-bg);
+    --default-button-hover-bg: var(--darkmode-default-button-hover-bg);
+    --close-button-bg: var(--darkmode-close-button-bg);
+    --close-button-hover-bg: var(--darkmode-close-button-hover-bg);
+    --delete-button-bg: var(--darkmode-delete-button-bg);
+    --delete-button-hover-bg: var(--darkmode-delete-button-hover-bg);
+  }
+
+  /* Additional dark mode specific overrides */
+  select {
+    background: var(--darkmode-body-bg);
+    color: var(--darkmode-body-fg);
+  }
+
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  input[type="url"],
+  input[type="number"],
+  input[type="tel"],
+  textarea,
+  select,
+  .vTextField {
+    border: 1px solid var(--darkmode-border-color);
+    background: var(--darkmode-darkened-bg);
+    color: var(--darkmode-body-fg);
+  }
+
+  /* Fix SVG icons in dark mode */
+  .messagelist li.success {
+    background-color: var(--darkmode-message-success-bg);
+    color: white;
+  }
+
+  .messagelist li.warning {
+    background-color: var(--darkmode-message-warning-bg);
+    color: white;
+  }
+
+  .messagelist li.error {
+    background-color: var(--darkmode-message-error-bg);
+    color: white;
+  }
+}
+
+/* Dark mode toggle button styles */
+.theme-toggle {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--header-link-color);
+  margin-left: 10px;
+}
+
+.theme-toggle svg {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
