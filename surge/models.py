@@ -2,6 +2,21 @@
 Models for the surge app.
 """
 from django.db import models
+from django.utils import timezone
+
+
+class ApiStatus(models.Model):
+    """
+    Model to store API status information.
+    """
+    name = models.CharField(max_length=100, unique=True)
+    last_run = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name_plural = "API Statuses"
+
+    def __str__(self):
+        return f"{self.name} - Last run: {self.last_run}"
 
 
 class Country(models.Model):
