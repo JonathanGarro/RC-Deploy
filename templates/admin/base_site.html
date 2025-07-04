@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    /* Make header full width */
+    #header {
+      width: 100%;
+    }
+    #container {
+      flex-direction: column;
+    }
+    .main {
+      display: flex;
+      width: 100%;
+    }
+    /* Make breadcrumbs full width */
+    div.breadcrumbs {
+      width: 100%;
+    }
+  </style>
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wrap tables in table-container divs for better responsive behavior
+      const tables = document.querySelectorAll('table:not(.table-wrapped)');
+      tables.forEach(function(table) {
+        if (!table.closest('.table-container')) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'table-container';
+          table.parentNode.insertBefore(wrapper, table);
+          wrapper.appendChild(table);
+          table.classList.add('table-wrapped');
+        }
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
