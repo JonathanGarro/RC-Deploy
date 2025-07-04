@@ -6,6 +6,7 @@ A Django application that periodically fetches surge alert data from the IFRC AP
 
 - Automatically fetches and stores surge alert data from the IFRC API
 - Handles pagination and updates to existing records
+- Manual trigger button in the admin interface to fetch surge alerts on demand
 - User profiles with preferences:
   - Language abilities
   - Regional preferences
@@ -186,7 +187,50 @@ Access the admin interface at `http://localhost:8000/admin/` to:
 
 ### Scheduled Tasks
 
-The system automatically fetches new surge alert data every hour. You can modify the schedule in `surge/celery.py`.
+The system automatically fetches new surge alert data every hour. You can control the scheduling through the admin interface:
+
+1. Go to the Django admin interface at `http://localhost:8000/admin/`
+2. Navigate to the "Scheduler" section
+3. Click on "Scheduled Tasks"
+4. Here you can:
+   - View existing scheduled tasks
+   - Create new scheduled tasks
+   - Edit task schedules (interval or crontab based)
+   - Enable/disable tasks without deleting them
+   - Monitor when tasks were last run and how many times they've run
+   - Manually trigger the fetch_surge_alerts task by clicking the "Run Now" button
+
+#### Creating a New Task
+
+1. Click "Add Scheduled Task"
+2. Enter a name for the task
+3. Select the task to run from the dropdown
+4. Choose the schedule type (interval or crontab)
+5. Fill in the schedule details
+6. Click "Save"
+
+#### Manually Triggering Tasks
+
+For the fetch_surge_alerts task, you can manually trigger it at any time:
+
+1. Go to the Scheduled Tasks list in the admin interface
+2. Find the row with the "Fetch Surge Alerts" task
+3. Click the "Run Now" button in the "Manual Run" column
+4. The task will be executed immediately, and you'll see a success message with the number of records created and updated
+
+This is useful when you want to immediately fetch the latest surge alerts without waiting for the scheduled run.
+
+#### Editing a Task
+
+1. Click on the task name in the list
+2. Edit the task details
+3. Click "Save"
+
+#### Disabling a Task
+
+1. Click on the task name in the list
+2. Uncheck the "Enabled" checkbox
+3. Click "Save"
 
 ### Manual Data Fetch
 
