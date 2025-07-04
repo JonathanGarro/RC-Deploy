@@ -1,0 +1,253 @@
+/* Django admin base styles */
+:root {
+  --primary: #79aec8;
+  --secondary: #417690;
+  --accent: #f5dd5d;
+  --primary-fg: #fff;
+  --body-fg: #333;
+  --body-bg: #fff;
+  --body-quiet-color: #666;
+  --body-loud-color: #000;
+  --header-color: #ffc;
+  --header-branding-color: var(--accent);
+  --header-bg: var(--secondary);
+  --header-link-color: var(--primary-fg);
+  --breadcrumbs-fg: #c4dce8;
+  --breadcrumbs-link-fg: var(--body-bg);
+  --breadcrumbs-bg: var(--primary);
+  --link-fg: #447e9b;
+  --link-hover-color: #036;
+  --link-selected-fg: #5b80b2;
+  --hairline-color: #e8e8e8;
+  --border-color: #ccc;
+  --error-fg: #ba2121;
+  --message-success-bg: #dfd;
+  --message-warning-bg: #ffc;
+  --message-error-bg: #ffefef;
+  --darkened-bg: #f8f8f8;
+  --selected-bg: #e4e4e4;
+  --selected-row: #ffc;
+  --button-fg: #fff;
+  --button-bg: var(--primary);
+  --button-hover-bg: #609ab6;
+  --default-button-bg: var(--secondary);
+  --default-button-hover-bg: #205067;
+  --close-button-bg: #888;
+  --close-button-hover-bg: #747474;
+  --delete-button-bg: #ba2121;
+  --delete-button-hover-bg: #a41515;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+  color: var(--body-fg);
+  background: var(--body-bg);
+}
+
+/* Typography */
+h1 {
+  font-size: 20px;
+  color: var(--body-loud-color);
+  margin: 0 0 20px;
+  font-weight: 300;
+}
+
+h2 {
+  font-size: 16px;
+  margin: 1em 0 .5em 0;
+}
+
+h3 {
+  font-size: 14px;
+  margin: .8em 0 .3em 0;
+  color: var(--body-quiet-color);
+  font-weight: bold;
+}
+
+h4 {
+  font-size: 12px;
+  margin: 1em 0 .8em 0;
+  padding-bottom: 3px;
+}
+
+h5 {
+  font-size: 10px;
+  margin: 1.5em 0 .5em 0;
+  color: var(--body-quiet-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+a:link, a:visited {
+  color: var(--link-fg);
+  text-decoration: none;
+}
+
+a:focus, a:hover {
+  color: var(--link-hover-color);
+}
+
+a:focus {
+  text-decoration: underline;
+}
+
+a img {
+  border: none;
+}
+
+/* HEADER */
+#header {
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 40px;
+  background: var(--header-bg);
+  color: var(--header-color);
+  overflow: hidden;
+}
+
+#header a:link, #header a:visited {
+  color: var(--header-link-color);
+}
+
+#header a:focus, #header a:hover {
+  text-decoration: underline;
+}
+
+#branding {
+  float: left;
+}
+
+#branding h1 {
+  padding: 0;
+  margin: 0 20px 0 0;
+  font-weight: 300;
+  font-size: 24px;
+  color: var(--header-branding-color);
+}
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+  color: var(--header-branding-color);
+}
+
+#branding h2 {
+  padding: 0 10px;
+  font-size: 14px;
+  margin: -8px 0 8px 0;
+  font-weight: normal;
+  color: var(--header-color);
+}
+
+#user-tools {
+  float: right;
+  padding: 0;
+  margin: 0 0 0 20px;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-align: right;
+}
+
+/* MAIN CONTENT */
+#content {
+  padding: 20px 40px;
+}
+
+.dashboard #content {
+  width: 600px;
+}
+
+#content-main {
+  float: left;
+  width: 100%;
+}
+
+/* BREADCRUMBS */
+div.breadcrumbs {
+  background: var(--breadcrumbs-bg);
+  padding: 10px 40px;
+  border: none;
+  color: var(--breadcrumbs-fg);
+  text-align: left;
+}
+
+div.breadcrumbs a {
+  color: var(--breadcrumbs-link-fg);
+}
+
+div.breadcrumbs a:focus, div.breadcrumbs a:hover {
+  color: var(--breadcrumbs-fg);
+}
+
+/* MESSAGES & ERRORS */
+ul.messagelist {
+  padding: 0;
+  margin: 0;
+}
+
+ul.messagelist li {
+  display: block;
+  font-weight: 400;
+  font-size: 13px;
+  padding: 10px 10px 10px 65px;
+  margin: 0 0 10px 0;
+  background: var(--message-success-bg) url(../img/icon-yes.svg) 40px 12px no-repeat;
+  background-size: 16px auto;
+  color: var(--body-fg);
+}
+
+ul.messagelist li.warning {
+  background: var(--message-warning-bg) url(../img/icon-alert.svg) 40px 14px no-repeat;
+  background-size: 14px auto;
+}
+
+ul.messagelist li.error {
+  background: var(--message-error-bg) url(../img/icon-no.svg) 40px 12px no-repeat;
+  background-size: 16px auto;
+}
+
+/* FORM BUTTONS */
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+  background: var(--button-bg);
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  color: var(--button-fg);
+  cursor: pointer;
+}
+
+.button:active, input[type=submit]:active, input[type=button]:active,
+.button:focus, input[type=submit]:focus, input[type=button]:focus,
+.button:hover, input[type=submit]:hover, input[type=button]:hover {
+  background: var(--button-hover-bg);
+}
+
+.button[disabled], input[type=submit][disabled], input[type=button][disabled] {
+  opacity: 0.4;
+}
+
+.button.default, input[type=submit].default, .submit-row input.default {
+  background: var(--default-button-bg);
+}
+
+.button.default:active, input[type=submit].default:active,
+.button.default:focus, input[type=submit].default:focus,
+.button.default:hover, input[type=submit].default:hover {
+  background: var(--default-button-hover-bg);
+}
+
+/* FOOTER */
+#footer {
+  clear: both;
+  padding: 10px;
+}
