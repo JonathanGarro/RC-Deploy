@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.urls import reverse
 from .models import ScheduledTask
 
 @admin.register(ScheduledTask)
 class ScheduledTaskAdmin(admin.ModelAdmin):
-    list_display = ('name', 'task', 'schedule_display', 'enabled', 'last_run_at', 'total_run_count')
+    list_display = ('name', 'task', 'schedule_display', 'enabled', 'last_run_at', 'total_run_count', 'run_now_button')
     list_filter = ('enabled', 'task', 'schedule_type')
     search_fields = ('name', 'task')
     readonly_fields = ('last_run_at', 'total_run_count', 'date_created', 'date_changed')
@@ -55,3 +56,20 @@ class ScheduledTaskAdmin(admin.ModelAdmin):
         return "Unknown schedule type"
 
     schedule_display.short_description = "Schedule"
+
+    def run_now_button(self, obj):
+        """
+        Generate a button to manually run the task.
+        Only enabled for the fetch_surge_alerts task.
+        """
+        if obj.task == 'surge.tasks.fetch_surge_alerts':
+            url = reverse('scheduler:run_task', args=[obj.id])
+            return format_html(
+                '<a href="{}" class="button" style="background-color: #79aec8; padding: 5px 10px; '
+                'color: white; text-decoration: none; border-radius: 4px;">Run Now</a>',
+                url
+            )
+        return "-"
+
+    run_now_button.short_description = "Manual Run"
+    run_now_button.allow_tags = True
