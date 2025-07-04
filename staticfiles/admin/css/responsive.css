@@ -1,0 +1,158 @@
+/* Django admin responsive styles */
+
+/* Mobile styles (up to 767px) */
+@media (max-width: 767px) {
+  /* General layout */
+  #header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px 20px;
+  }
+
+  #branding h1 {
+    margin-bottom: 10px;
+  }
+
+  #user-tools {
+    margin: 0;
+    padding-top: 10px;
+  }
+
+  .main {
+    padding: 15px;
+  }
+
+  /* Forms */
+  .form-row {
+    padding: 8px 0;
+    flex-direction: column;
+  }
+
+  .form-row label {
+    margin-bottom: 5px;
+  }
+
+  .form-row input, .form-row textarea, .form-row select {
+    width: 100%;
+  }
+
+  .aligned p.help {
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .submit-row {
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .submit-row input, .submit-row a.button {
+    width: 100%;
+    margin: 0;
+  }
+
+  /* Lists */
+  #changelist-form .paginator {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #changelist-form .paginator .this-page {
+    margin-bottom: 10px;
+  }
+
+  #changelist-filter {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 15px;
+  }
+
+  #changelist .actions {
+    flex-direction: column;
+  }
+
+  #changelist .actions select {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  /* Tables */
+  .change-list table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  /* Login */
+  .login #container {
+    width: 90%;
+    margin: 20px auto;
+  }
+}
+
+/* Tablet styles (768px to 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  /* General layout */
+  #header {
+    padding: 15px 20px;
+  }
+
+  .main {
+    padding: 20px;
+  }
+
+  /* Forms */
+  .form-row {
+    padding: 10px 0;
+  }
+
+  .aligned p.help {
+    margin-left: 160px;
+  }
+
+  /* Lists */
+  #changelist-filter {
+    width: 200px;
+  }
+}
+
+/* Fix for SVG icons */
+.theme-toggle svg, .toggle-nav-sidebar svg {
+  width: 16px;
+  height: 16px;
+  vertical-align: -0.125em;
+}
+
+/* Ensure buttons and inputs are properly sized on mobile */
+@media (max-width: 767px) {
+  input[type="submit"], input[type="button"], .button, a.button {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+
+  select {
+    max-width: 100%;
+  }
+}
+
+/* Ensure proper spacing in the admin interface */
+.module {
+  margin-bottom: 20px;
+}
+
+.module h2 {
+  margin-bottom: 0;
+}
+
+/* Ensure proper spacing in the breadcrumbs */
+div.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+/* Ensure proper spacing in the messages */
+ul.messagelist {
+  margin-bottom: 15px;
+}
