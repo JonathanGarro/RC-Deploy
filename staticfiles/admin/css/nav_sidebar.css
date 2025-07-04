@@ -1,0 +1,152 @@
+/* Django admin navigation sidebar styles */
+#nav-sidebar {
+  width: 250px;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: var(--body-bg);
+  overflow: auto;
+  z-index: 100;
+  transition: left 0.3s ease;
+  border-right: 1px solid var(--hairline-color);
+}
+
+#nav-sidebar.sticky {
+  position: sticky;
+  top: 0;
+  padding-top: 0;
+  z-index: 100;
+}
+
+.toggle-nav-sidebar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--body-quiet-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-nav-sidebar:hover,
+.toggle-nav-sidebar:focus {
+  background-color: var(--darkened-bg);
+  color: var(--body-fg);
+}
+
+.toggle-nav-sidebar svg {
+  width: 20px;
+  height: 20px;
+}
+
+body.nav-sidebar-collapsed #nav-sidebar {
+  left: -250px;
+}
+
+body.nav-sidebar-collapsed .main {
+  margin-left: 0;
+}
+
+.main {
+  margin-left: 250px;
+  transition: margin-left 0.3s ease;
+}
+
+#nav-sidebar .module {
+  margin-bottom: 0;
+}
+
+#nav-sidebar .module th {
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+#nav-sidebar .module caption {
+  background: var(--primary);
+  color: var(--primary-fg);
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+}
+
+#nav-sidebar .module caption a {
+  color: var(--primary-fg);
+}
+
+#nav-sidebar .module caption a:hover {
+  color: var(--primary-fg);
+}
+
+#nav-sidebar .current-model {
+  background: var(--selected-bg);
+}
+
+#nav-sidebar .current-app .section:link,
+#nav-sidebar .current-app .section:visited {
+  color: var(--header-link-color);
+  font-weight: bold;
+}
+
+#nav-sidebar .app-name {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 12px 8px;
+  background: var(--darkened-bg);
+  color: var(--body-fg);
+  border-top: 1px solid var(--hairline-color);
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+#nav-sidebar a.section {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  color: var(--body-fg);
+  text-decoration: none;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+#nav-sidebar a.section:hover {
+  background-color: var(--darkened-bg);
+}
+
+#nav-sidebar .section svg {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+  #nav-sidebar {
+    width: 100%;
+    left: -100%;
+  }
+  
+  body.nav-sidebar-collapsed #nav-sidebar {
+    left: -100%;
+  }
+  
+  body:not(.nav-sidebar-collapsed) #nav-sidebar {
+    left: 0;
+  }
+  
+  .main {
+    margin-left: 0;
+  }
+  
+  .toggle-nav-sidebar {
+    display: flex;
+  }
+}
