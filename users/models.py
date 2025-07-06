@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from surge.models import Country, MolnixTag
+from surge.models import Country, MolnixTag, SurgeAlert
 from django.core.validators import RegexValidator
 
 
@@ -89,6 +89,7 @@ class UserProfile(models.Model):
     preferred_regions = models.ManyToManyField(Region, blank=True, related_name='preferred_by_users')
     restricted_countries = models.ManyToManyField(Country, blank=True, related_name='restricted_for_users')
     qualified_profiles = models.ManyToManyField(MolnixTag, blank=True, limit_choices_to={'tag_type': 'regular'})
+    saved_alerts = models.ManyToManyField(SurgeAlert, blank=True, related_name='saved_by_users')
     rotation_availability = models.CharField(max_length=10, choices=ROTATION_CHOICES, default='any')
     bio = models.TextField(blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
