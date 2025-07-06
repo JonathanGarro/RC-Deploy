@@ -1,11 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from django.http import JsonResponse
+from django.urls import reverse
 from .forms import UserForm, UserProfileForm, LanguageProficiencyFormSet
 from .models import UserProfile, Airport
 from django.db.models import Q
+from surge.models import SurgeAlert
 
 @login_required
 def profile_view(request):
@@ -14,10 +16,12 @@ def profile_view(request):
     """
     user = request.user
     user_profile = user.profile
+    saved_alerts = user_profile.saved_alerts.all()
 
     return render(request, 'users/profile.html', {
         'user': user,
         'profile': user_profile,
+        'saved_alerts': saved_alerts,
     })
 
 @login_required
@@ -80,3 +84,31 @@ def search_airports(request):
     ]
 
     return JsonResponse({'results': results})
+
+@login_required
+def save_alert(request, alert_id):
+    """
+    View for saving a surge alert to the user's profile.
+    """
+    alert = get_object_or_404(SurgeAlert, id=alert_id)
+    user_profile = request.user.profile
+
+    # Add the alert to the user's saved alerts
+    user_profile.saved_alerts.add(alert)
+
+    messages.success(request, f'Alert "{alert.message}" has been saved to your profile.')
+    return redirect('surge:alert_detail', api_id=alert.api_id)
+
+@login_required
+def remove_alert(request, alert_id):
+    """
+    View for removing a saved surge alert from the user's profile.
+    """
+    alert = get_object_or_404(SurgeAlert, id=alert_id)
+    user_profile = request.user.profile
+
+    # Remove the alert from the user's saved alerts
+    user_profile.saved_alerts.remove(alert)
+
+    messages.success(request, f'Alert "{alert.message}" has been removed from your profile.')
+    return redirect('surge:alert_detail', api_id=alert.api_id)
