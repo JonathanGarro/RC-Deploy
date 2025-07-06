@@ -12,6 +12,7 @@ Django==4.2.7
 djangorestframework==3.14.0
 idna==3.10
 kombu==5.5.4
+narwhals==1.45.0
 packaging==25.0
 prompt_toolkit==3.0.51
 psycopg2-binary==2.9.9
