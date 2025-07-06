@@ -1,166 +1,1425 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>{{ alert.message }} | IFRC Surge Alert System</title>
 
-{% block title %}{{ alert.message }} | IFRC Surge Alert System{% endblock %}
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="IFRC Surge Alert System - Alert Details">
 
-{% block content %}
-<div class="row mb-4">
-    <div class="col">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'surge:alert_list' %}">Surge Alerts</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Alert {{ alert.api_id }}</li>
-            </ol>
-        </nav>
-        <h1>{{ alert.message }}</h1>
-        <p class="text-muted">Created: {{ alert.created_at|date:"Y-m-d H:i" }}</p>
-    </div>
-</div>
+	<!-- Dark mode -->
+	<script>
+		const storedTheme = localStorage.getItem('theme')
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Alert Details</h5>
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">ID:</div>
-                    <div class="col-md-8">{{ alert.api_id }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Message:</div>
-                    <div class="col-md-8">{{ alert.message }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Country:</div>
-                    <div class="col-md-8">{% if alert.country %}{{ alert.country.name }}{% else %}N/A{% endif %}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Status:</div>
-                    <div class="col-md-8">{{ alert.molnix_status_display }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Type:</div>
-                    <div class="col-md-8">{{ alert.atype_display }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Category:</div>
-                    <div class="col-md-8">{{ alert.category_display }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Molnix ID:</div>
-                    <div class="col-md-8">{{ alert.molnix_id }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Operation:</div>
-                    <div class="col-md-8">{{ alert.operation|default:"N/A" }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Deployment Needed:</div>
-                    <div class="col-md-8">{{ alert.deployment_needed|yesno:"Yes,No" }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Private:</div>
-                    <div class="col-md-8">{{ alert.is_private|yesno:"Yes,No" }}</div>
-                </div>
-            </div>
-        </div>
+		const getPreferredTheme = () => {
+			if (storedTheme) {
+				return storedTheme
+			}
+			return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'light'
+		}
 
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Dates</h5>
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Created:</div>
-                    <div class="col-md-8">{{ alert.created_at|date:"Y-m-d H:i" }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Opens:</div>
-                    <div class="col-md-8">{{ alert.opens|date:"Y-m-d H:i"|default:"N/A" }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Closes:</div>
-                    <div class="col-md-8">{{ alert.closes|date:"Y-m-d H:i"|default:"N/A" }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Start:</div>
-                    <div class="col-md-8">{{ alert.start|date:"Y-m-d H:i"|default:"N/A" }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">End:</div>
-                    <div class="col-md-8">{{ alert.end|date:"Y-m-d H:i"|default:"N/A" }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Last Updated:</div>
-                    <div class="col-md-8">{{ alert.last_updated|date:"Y-m-d H:i" }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
+		const setTheme = function (theme) {
+			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				document.documentElement.setAttribute('data-bs-theme', 'dark')
+			} else {
+				document.documentElement.setAttribute('data-bs-theme', theme)
+			}
+		}
 
-    <div class="col-md-4">
-        {% if alert.country %}
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Country Information</h5>
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-5 fw-bold">Name:</div>
-                    <div class="col-md-7">{{ alert.country.name }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-5 fw-bold">ISO:</div>
-                    <div class="col-md-7">{{ alert.country.iso }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-5 fw-bold">ISO3:</div>
-                    <div class="col-md-7">{{ alert.country.iso3 }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-5 fw-bold">Society:</div>
-                    <div class="col-md-7">{{ alert.country.society_name|default:"N/A" }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-5 fw-bold">Region:</div>
-                    <div class="col-md-7">{{ alert.country.region }}</div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
+		setTheme(getPreferredTheme())
 
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Tags</h5>
-            </div>
-            <div class="card-body">
-                {% if alert.molnix_tags.all %}
-                    <div class="list-group">
-                        {% for tag in alert.molnix_tags.all %}
-                            <div class="list-group-item">
-                                <h6 class="mb-1">{{ tag.name }}</h6>
-                                <p class="mb-1 small text-muted">{{ tag.description|default:"" }}</p>
-                                {% if tag.groups %}
-                                    <div class="mt-1">
-                                        {% for group in tag.groups %}
-                                            <span class="badge bg-secondary">{{ group }}</span>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
+		window.addEventListener('DOMContentLoaded', () => {
+		    var el = document.querySelector('.theme-icon-active');
+			if(el != 'undefined' && el != null) {
+				const showActiveTheme = theme => {
+				const activeThemeIcon = document.querySelector('.theme-icon-active use')
+				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
+
+				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+					element.classList.remove('active')
+				})
+
+				btnToActive.classList.add('active')
+				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			}
+
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				if (storedTheme !== 'light' || storedTheme !== 'dark') {
+					setTheme(getPreferredTheme())
+				}
+			})
+
+			showActiveTheme(getPreferredTheme())
+
+			document.querySelectorAll('[data-bs-theme-value]')
+				.forEach(toggle => {
+					toggle.addEventListener('click', () => {
+						const theme = toggle.getAttribute('data-bs-theme-value')
+						localStorage.setItem('theme', theme)
+						setTheme(theme)
+						showActiveTheme(theme)
+					})
+				})
+
+			}
+		})
+
+	</script>
+
+	<!-- Google Font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap">
+
+	<!-- Plugins CSS -->
+	<link rel="stylesheet" type="text/css" href="/static/temp_html_files/vendor/font-awesome/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/static/temp_html_files/vendor/bootstrap-icons/bootstrap-icons.css">
+	<link rel="stylesheet" type="text/css" href="/static/temp_html_files/vendor/plyr/plyr.css" />
+
+	<!-- Theme CSS -->
+	<link rel="stylesheet" type="text/css" href="/static/temp_html_files/css/style.css">
+
+ <!-- Leaflet CSS -->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+ <!-- Chart.js -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+</head>
+
+<body>
+
+<!-- Header START -->
+<header class="navbar-light navbar-sticky">
+	<!-- Logo Nav START -->
+	<nav class="navbar navbar-expand-xl">
+		<div class="container">
+			<!-- Logo START -->
+			<a class="navbar-brand" href="{% url 'surge:alert_list' %}">
+				<span class="h3">IFRC Surge Alert System</span>
+			</a>
+			<!-- Logo END -->
+
+			<!-- Responsive navbar toggler -->
+			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-animation">
+					<span></span>
+					<span></span>
+					<span></span>
+				</span>
+			</button>
+
+			<!-- Main navbar START -->
+			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
+
+				<!-- Nav Main menu START -->
+				<ul class="navbar-nav navbar-nav-scroll mx-auto">
+					<li class="nav-item">
+						<a class="nav-link" href="{% url 'surge:alert_list' %}">Alerts</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/admin/">Admin</a>
+					</li>
+				</ul>
+				<!-- Nav Main menu END -->
+
+				<!-- Nav Search START -->
+				<div class="nav my-3 my-xl-0 px-4 flex-nowrap align-items-center">
+					<div class="nav-item w-100">
+						<form class="position-relative" action="{% url 'surge:alert_list' %}" method="get">
+							<input class="form-control pe-5 bg-transparent" type="search" name="q" placeholder="Search alerts" aria-label="Search">
+							<button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">
+								<i class="fas fa-search fs-6 "></i>
+							</button>
+						</form>
+					</div>
+				</div>
+				<!-- Nav Search END -->
+			</div>
+			<!-- Main navbar END -->
+
+			<!-- Profile START -->
+			<div class="dropdown ms-1 ms-lg-0">
+				{% if user.is_authenticated %}
+				<a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
+					<img class="avatar-img rounded-circle" src="/static/temp_html_files/images/avatar/01.jpg" alt="avatar">
+				</a>
+				<ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
+					<!-- Profile info -->
+					<li class="px-3 mb-3">
+						<div class="d-flex align-items-center">
+							<!-- Avatar -->
+							<div class="avatar me-3">
+								<img class="avatar-img rounded-circle shadow" src="/static/temp_html_files/images/avatar/01.jpg" alt="avatar">
+							</div>
+							<div>
+								<a class="h6" href="#">{{ user.username }}</a>
+								<p class="small m-0">{{ user.email }}</p>
+							</div>
+						</div>
+					</li>
+          <li> <hr class="dropdown-divider"></li>
+					<!-- Links -->
+					<li><a class="dropdown-item" href="{% url 'users:profile' %}"><i class="bi bi-person fa-fw me-2"></i>My Profile</a></li>
+					<li><a class="dropdown-item bg-danger-soft-hover" href="/admin/logout/"><i class="bi bi-power fa-fw me-2"></i>Sign Out</a></li>
+				</ul>
+				{% else %}
+				<a class="btn btn-sm btn-primary mb-0" href="/admin/login/">Login</a>
+				{% endif %}
+			</div>
+			<!-- Profile START -->
+		</div>
+	</nav>
+	<!-- Logo Nav END -->
+</header>
+<!-- Header END -->
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<!-- =======================
+Page content START -->
+<section class="pt-3 pt-xl-5">
+	<div class="container" data-sticky-container>
+		<div class="row g-4">
+			<!-- Main content START -->
+			<div class="col-xl-8">
+				<div class="row g-4">
+					<!-- Title START -->
+					<div class="col-12">
+						<!-- Breadcrumb -->
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb">
+								<li class="breadcrumb-item"><a href="{% url 'surge:alert_list' %}">Surge Alerts</a></li>
+								<li class="breadcrumb-item active" aria-current="page">Alert {{ alert.api_id }}</li>
+							</ol>
+						</nav>
+						<!-- Title -->
+						<h2>{{ alert.message }}</h2>
+						<!-- Content -->
+						<ul class="list-inline mb-0">
+							<li class="list-inline-item fw-light h6 me-3 mb-1 mb-sm-0"><i class="fas fa-globe me-2"></i>{% if alert.country %}{{ alert.country.name }}{% else %}N/A{% endif %}</li>
+							<li class="list-inline-item fw-light h6"><i class="fas fa-info-circle me-2"></i>{{ alert.molnix_status_display }}</li>
+						</ul>
+
+						<!-- Timeline Visualization START -->
+						{% if show_timeline %}
+						<div class="mt-4">
+							<div class="card border">
+								<div class="card-body position-relative" style="height: 150px; overflow: hidden; padding-bottom: 30px;">
+									<canvas id="timelineChart" height="100"></canvas>
+									<div id="dateLabels" class="position-absolute start-0 w-100" style="height: 25px; pointer-events: none; top: 70px;"></div>
+									<div class="mt-2 small text-center">
+										<span class="me-4">
+											<svg width="16" height="10" style="vertical-align: middle;">
+												<rect width="16" height="6" fill="rgba(54, 162, 235, 0.7)" stroke="rgba(54, 162, 235, 1)" stroke-width="1" y="2"></rect>
+											</svg>
+											Deployment Period
+										</span>
+										<span class="me-4">
+											<svg width="12" height="12" style="vertical-align: middle;">
+												<rect x="6" y="6" width="8" height="8" fill="rgba(75, 192, 75, 1)" stroke="rgba(75, 192, 75, 1)" stroke-width="1" transform="translate(-4,-4) rotate(45, 6, 6)"></rect>
+											</svg>
+											Opens Date
+										</span>
+										<span class="me-4">
+											<svg width="12" height="12" style="vertical-align: middle;">
+												<rect x="6" y="6" width="8" height="8" fill="rgba(255, 99, 132, 1)" stroke="rgba(255, 99, 132, 1)" stroke-width="1" transform="translate(-4,-4) rotate(45, 6, 6)"></rect>
+											</svg>
+											Closes Date
+										</span>
+										<span class="me-4">
+											<svg width="12" height="12" style="vertical-align: middle;">
+												<polygon points="6,0 12,12 0,12" fill="rgba(255, 159, 64, 1)" stroke="rgba(255, 159, 64, 1)" stroke-width="1"></polygon>
+											</svg>
+											Today
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						{% endif %}
+						<!-- Timeline Visualization END -->
+					</div>
+					<!-- Title END -->
+
+     <!-- Info Boxes START -->
+					<div class="col-12">
+						<div class="row g-4 mb-4">
+							<!-- Add CSS for consistent box height and smaller text -->
+							<style>
+								.info-box-value {
+									font-size: 1.5rem; /* Smaller font size */
+									line-height: 1.2;
+									overflow-wrap: break-word;
+								}
+								.info-box {
+									min-height: 140px; /* Ensure consistent height */
+									display: flex;
+									flex-direction: column;
+								}
+							</style>
+
+							<!-- Sector Box -->
+							<div class="col-md-6">
+								<div class="card card-body bg-warning bg-opacity-15 p-4 h-100 info-box">
+									<div class="d-flex justify-content-between align-items-center">
+										<!-- Digit -->
+										<div>
+           {% if "OPS-LEAD" in alert.molnix_tags.all|stringformat:"s" %}
+												<h2 class="mb-0 fw-bold info-box-value">Operational Leadership</h2>
+												<span class="mb-0 h6 fw-light">Sector</span>
+											{% else %}
+												<h2 class="mb-0 fw-bold info-box-value">N/A</h2>
+												<span class="mb-0 h6 fw-light">Sector</span>
+											{% endif %}
+										</div>
+										<!-- Icon -->
+										<div class="icon-lg rounded-circle bg-warning text-white mb-0"><i class="fas fa-briefcase fa-fw"></i></div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Role Box -->
+							<div class="col-md-6">
+								<div class="card card-body bg-purple bg-opacity-10 p-4 h-100 info-box">
+									<div class="d-flex justify-content-between align-items-center">
+										<!-- Digit -->
+										<div>
+           {% if "OPMGR" in alert.molnix_tags.all|stringformat:"s" %}
+												<h2 class="mb-0 fw-bold info-box-value">Operations Manager</h2>
+												<span class="mb-0 h6 fw-light">Role</span>
+											{% else %}
+												<h2 class="mb-0 fw-bold info-box-value">N/A</h2>
+												<span class="mb-0 h6 fw-light">Role</span>
+											{% endif %}
+										</div>
+										<!-- Icon -->
+										<div class="icon-lg rounded-circle bg-purple text-white mb-0"><i class="fas fa-user-tie fa-fw"></i></div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Rotation Box -->
+							<div class="col-md-6">
+								<div class="card card-body bg-primary bg-opacity-10 p-4 h-100 info-box">
+									<div class="d-flex justify-content-between align-items-center">
+										<!-- Digit -->
+										<div>
+											{% if "2nd" in alert.molnix_tags.all|stringformat:"s" %}
+												<h2 class="mb-0 fw-bold info-box-value">2nd</h2>
+												<span class="mb-0 h6 fw-light">Rotation</span>
+											{% else %}
+												<h2 class="mb-0 fw-bold info-box-value">N/A</h2>
+												<span class="mb-0 h6 fw-light">Rotation</span>
+											{% endif %}
+										</div>
+										<!-- Icon -->
+										<div class="icon-lg rounded-circle bg-primary text-white mb-0"><i class="fas fa-sync-alt fa-fw"></i></div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Language Box -->
+							<div class="col-md-6">
+								<div class="card card-body bg-success bg-opacity-10 p-4 h-100 info-box">
+									<div class="d-flex justify-content-between align-items-center">
+										<!-- Digit -->
+										<div>
+											{% with tags=alert.molnix_tags.all|stringformat:"s" %}
+												{% if "L-POR" in tags and "L-ENG" in tags %}
+													<h2 class="mb-0 fw-bold info-box-value">Portuguese</h2>
+													<span class="mb-0 h6 fw-light">Language</span>
+												{% elif "L-SPA" in tags and "L-ENG" in tags %}
+													<h2 class="mb-0 fw-bold info-box-value">Spanish</h2>
+													<span class="mb-0 h6 fw-light">Language</span>
+												{% elif "L-FRA" in tags and "L-ENG" in tags %}
+													<h2 class="mb-0 fw-bold info-box-value">French</h2>
+													<span class="mb-0 h6 fw-light">Language</span>
+												{% elif "L-ARA" in tags and "L-ENG" in tags %}
+													<h2 class="mb-0 fw-bold info-box-value">Arabic</h2>
+													<span class="mb-0 h6 fw-light">Language</span>
+												{% elif "L-POR" in tags %}
+													<h2 class="mb-0 fw-bold info-box-value">Portuguese</h2>
+													<span class="mb-0 h6 fw-light">Language</span>
+												{% elif "L-SPA" in tags %}
+													<h2 class="mb-0 fw-bold info-box-value">Spanish</h2>
+													<span class="mb-0 h6 fw-light">Language</span>
+												{% elif "L-FRA" in tags %}
+													<h2 class="mb-0 fw-bold info-box-value">French</h2>
+													<span class="mb-0 h6 fw-light">Language</span>
+												{% elif "L-ARA" in tags %}
+													<h2 class="mb-0 fw-bold info-box-value">Arabic</h2>
+													<span class="mb-0 h6 fw-light">Language</span>
+												{% elif "L-ENG" in tags %}
+													<h2 class="mb-0 fw-bold info-box-value">English</h2>
+													<span class="mb-0 h6 fw-light">Language</span>
+												{% else %}
+													<h2 class="mb-0 fw-bold info-box-value">N/A</h2>
+													<span class="mb-0 h6 fw-light">Language</span>
+												{% endif %}
+											{% endwith %}
+										</div>
+										<!-- Icon -->
+										<div class="icon-lg rounded-circle bg-success text-white mb-0"><i class="fas fa-language fa-fw"></i></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Info Boxes END -->
+
+					<!-- Alert Details START -->
+					<div class="col-12">
+						<div class="card border">
+							<!-- Card header START -->
+							<div class="card-header border-bottom">
+								<h3 class="mb-0">Alert Details</h3>
+							</div>
+							<!-- Card header END -->
+
+							<!-- Card body START -->
+							<div class="card-body">
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">ID:</div>
+									<div class="col-md-8">{{ alert.api_id }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Message:</div>
+									<div class="col-md-8">{{ alert.message }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Country:</div>
+									<div class="col-md-8">{% if alert.country %}{{ alert.country.name }}{% else %}N/A{% endif %}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Status:</div>
+									<div class="col-md-8">{{ alert.molnix_status_display }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Type:</div>
+									<div class="col-md-8">{{ alert.atype_display }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Category:</div>
+									<div class="col-md-8">{{ alert.category_display }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Molnix ID:</div>
+									<div class="col-md-8">{{ alert.molnix_id }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Operation:</div>
+									<div class="col-md-8">{{ alert.operation|default:"N/A" }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Deployment Needed:</div>
+									<div class="col-md-8">{{ alert.deployment_needed|yesno:"Yes,No" }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Private:</div>
+									<div class="col-md-8">{{ alert.is_private|yesno:"Yes,No" }}</div>
+								</div>
+							</div>
+							<!-- Card body END -->
+						</div>
+					</div>
+					<!-- Alert Details END -->
+
+					<!-- Dates START -->
+					<div class="col-12">
+						<div class="card border rounded-3">
+							<!-- Card header START -->
+							<div class="card-header border-bottom">
+								<h3 class="mb-0">Important Dates</h3>
+							</div>
+							<!-- Card header END -->
+
+							<!-- Card body START -->
+							<div class="card-body">
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Created:</div>
+									<div class="col-md-8">{{ alert.created_at|date:"Y-m-d H:i" }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Opens:</div>
+									<div class="col-md-8">{{ alert.opens|date:"Y-m-d H:i"|default:"N/A" }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Closes:</div>
+									<div class="col-md-8">{{ alert.closes|date:"Y-m-d H:i"|default:"N/A" }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Start:</div>
+									<div class="col-md-8">{{ alert.start|date:"Y-m-d H:i"|default:"N/A" }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">End:</div>
+									<div class="col-md-8">{{ alert.end|date:"Y-m-d H:i"|default:"N/A" }}</div>
+								</div>
+								<div class="row mb-3">
+									<div class="col-md-4 fw-bold">Last Updated:</div>
+									<div class="col-md-8">{{ alert.last_updated|date:"Y-m-d H:i" }}</div>
+								</div>
+							</div>
+							<!-- Card body END -->
+						</div>
+					</div>
+					<!-- Dates END -->
+				</div>
+			</div>
+			<!-- Main content END -->
+
+			<!-- Right sidebar START -->
+			<div class="col-xl-4">
+				<div data-sticky data-margin-top="80" data-sticky-for="768">
+					<div class="row g-4">
+						<!-- Applicants START -->
+						<div class="col-md-6 col-xl-12">
+							<div class="card card-body border p-4">
+								<h4 class="mb-3">Applicants</h4>
+								<div class="d-grid gap-2">
+									{% if alert.molnix_id %}
+									<a href="https://rrms.ifrc.org/positions/show/{{ alert.molnix_id }}" class="btn btn-primary" target="_blank">Apply on RRMS</a>
+									{% else %}
+									<button class="btn btn-primary" disabled>Apply on RRMS (No Molnix ID)</button>
+									{% endif %}
+
+									{% if user.is_authenticated %}
+										{% if alert in user.profile.saved_alerts.all %}
+										<a href="{% url 'users:remove_alert' alert_id=alert.id %}" class="btn btn-danger">Remove</a>
+										{% else %}
+										<a href="{% url 'users:save_alert' alert_id=alert.id %}" class="btn btn-outline-primary">Save for Later</a>
+										{% endif %}
+									{% else %}
+										<a href="/admin/login/?next={{ request.path }}" class="btn btn-outline-primary">Login to Save</a>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+						<!-- Applicants END -->
+
+						<!-- Country Information START -->
+						<div class="col-md-6 col-xl-12">
+							<div class="card card-body border p-4">
+								<h4 class="mb-3">Country Information</h4>
+								<div id="country-map" style="height: 300px; width: 100%;"></div>
+								<div id="travel-advisory" class="mt-3">
+									<div class="d-flex justify-content-between align-items-center mb-2">
+										<span>Risk Score:</span>
+										<div class="risk-score-container" style="width: 70%; height: 20px; background-color: #e9ecef; border-radius: 10px; position: relative;">
+											<div id="risk-score-marker" style="position: absolute; top: -5px; width: 10px; height: 30px; background-color: #dc3545; border-radius: 5px; transform: translateX(-50%);"></div>
+											<div style="display: flex; justify-content: space-between; width: 100%; padding: 0 5px;">
+												<span>1</span>
+												<span>2</span>
+												<span>3</span>
+												<span>4</span>
+												<span>5</span>
+											</div>
+										</div>
+									</div>
+									<div id="risk-level" class="mb-2"></div>
+									<div id="us-advisory" class="mb-2"></div>
+									<div id="risk-details"></div>
+								</div>
+							</div>
+						</div>
+						<!-- Country Information END -->
+
+						<!-- Tags START -->
+						<div class="col-md-6 col-xl-12">
+							<div class="card card-body border p-4">
+								<h4 class="mb-3">Tags</h4>
+								{% if alert.molnix_tags.all %}
+									<div class="list-group">
+										{% for tag in alert.molnix_tags.all %}
+											<div class="list-group-item">
+												<h6 class="mb-1">{{ tag.name }}</h6>
+												<p class="mb-1 small text-muted">{{ tag.description|default:"" }}</p>
+												{% if tag.groups %}
+													<div class="mt-1">
+														{% for group in tag.groups %}
+															<span class="badge bg-secondary">{{ group }}</span>
+														{% endfor %}
+													</div>
+												{% endif %}
+											</div>
+										{% endfor %}
+									</div>
+								{% else %}
+									<p class="text-muted">No tags available.</p>
+								{% endif %}
+							</div>
+						</div>
+						<!-- Tags END -->
+
+						<!-- Actions START -->
+						<div class="col-md-6 col-xl-12">
+							<div class="d-grid gap-2">
+								<a href="{% url 'surge:alert_list' %}" class="btn btn-outline-primary">Back to List</a>
+								<a href="/admin/surge/surgealert/{{ alert.id }}/change/" class="btn btn-success">Edit in Admin</a>
+							</div>
+						</div>
+						<!-- Actions END -->
+					</div><!-- Row End -->
+				</div>
+			</div>
+			<!-- Right sidebar END -->
+
+		</div><!-- Row END -->
+	</div>
+</section>
+<!-- =======================
+Page content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+<!-- =======================
+Footer START -->
+<footer class="pt-5 bg-light">
+	<div class="container">
+		<!-- Divider -->
+		<hr class="mt-4 mb-0">
+
+		<!-- Bottom footer -->
+		<div class="py-3">
+			<div class="container px-0">
+				<div class="d-lg-flex justify-content-between align-items-center py-3 text-center text-md-left">
+					<!-- copyright text -->
+					<div class="text-body text-primary-hover">&copy; {% now "Y" %} IFRC Surge Alert System</div>
+					<!-- copyright links-->
+					<div class="justify-content-center mt-3 mt-lg-0">
+						<ul class="nav list-inline justify-content-center mb-0">
+							{% if surge_api_last_run %}
+								<li class="list-inline-item"><span class="nav-link">Last API update: {{ surge_api_last_run|date:"F j, Y, g:i a" }}</span></li>
+							{% else %}
+								<li class="list-inline-item"><span class="nav-link">API status: Not yet run</span></li>
+							{% endif %}
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>
+<!-- =======================
+Footer END -->
+
+<!-- Back to top -->
+<div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
+
+<!-- Bootstrap JS -->
+<script src="/static/temp_html_files/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Vendors -->
+<script src="/static/temp_html_files/vendor/sticky-js/sticky.min.js"></script>
+
+<!-- Template Functions -->
+<script src="/static/temp_html_files/js/functions.js"></script>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<!-- Chart.js Timeline Initialization -->
+{% if show_timeline %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Parse the chart data from the server
+    const chartData = JSON.parse('{{ chart_data|safe }}');
+
+    console.log('Chart data received:', chartData);
+
+    // Function to parse dates
+    function parseDate(dateStr) {
+        if (!dateStr) return null;
+        return new Date(dateStr);
+    }
+
+    // Parse all dates
+    const today = parseDate(chartData.today);
+    const deploymentStart = parseDate(chartData.deployment.start);
+    const deploymentEnd = parseDate(chartData.deployment.end);
+    const opensDate = parseDate(chartData.opens);
+    const closesDate = parseDate(chartData.closes);
+    const createdDate = parseDate(chartData.created);
+
+    console.log('Parsed dates:', {
+        today: today,
+        deploymentStart: deploymentStart,
+        deploymentEnd: deploymentEnd,
+        opensDate: opensDate,
+        closesDate: closesDate
+    });
+
+    // Find the earliest and latest dates to set the chart range
+    let allDates = [today, deploymentStart, deploymentEnd, opensDate, closesDate, createdDate].filter(d => d !== null);
+    const minDate = new Date(Math.min(...allDates));
+    const maxDate = new Date(Math.max(...allDates));
+
+    console.log('Chart date range:', {
+        allDates: allDates.map(d => d.toDateString()),
+        minDate: minDate.toDateString(),
+        maxDate: maxDate.toDateString()
+    });
+
+    // Add some padding to the chart range (3 days on each side)
+    minDate.setDate(minDate.getDate() - 3);
+    maxDate.setDate(maxDate.getDate() + 3);
+
+    // Create the chart (simplified - no custom ticks)
+    const ctx = document.getElementById('timelineChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                // Opens date marker
+                {
+                    label: 'Opens Date',
+                    data: opensDate ? [{
+                        x: opensDate.getTime(),
+                        y: 0
+                    }] : [],
+                    backgroundColor: 'rgba(75, 192, 75, 1)',
+                    borderColor: 'rgba(75, 192, 75, 1)',
+                    borderWidth: 2,
+                    pointStyle: 'rectRot',
+                    pointRadius: 8,
+                    pointHoverRadius: 10
+                },
+                // Closes date marker
+                {
+                    label: 'Closes Date',
+                    data: closesDate ? [{
+                        x: closesDate.getTime(),
+                        y: 0
+                    }] : [],
+                    backgroundColor: 'rgba(255, 99, 132, 1)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                    pointStyle: 'rectRot',
+                    pointRadius: 8,
+                    pointHoverRadius: 10
+                },
+                // Today marker
+                {
+                    label: 'Today',
+                    data: [{
+                        x: today.getTime(),
+                        y: 0
+                    }],
+                    backgroundColor: 'rgba(255, 159, 64, 1)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 2,
+                    pointStyle: 'triangle',
+                    pointRadius: 8,
+                    pointHoverRadius: 10
+                }
+            ]
+        },
+        plugins: [{
+            id: 'deploymentBar',
+            beforeDraw: function(chart) {
+                if (!deploymentStart && !deploymentEnd) return;
+
+                const ctx = chart.ctx;
+                const xAxis = chart.scales.x;
+                const yAxis = chart.scales.y;
+
+                // Calculate start and end positions - use actual deployment dates
+                const startTime = deploymentStart ? deploymentStart.getTime() : (deploymentEnd ? deploymentEnd.getTime() - (7 * 24 * 60 * 60 * 1000) : minDate.getTime());
+                const endTime = deploymentEnd ? deploymentEnd.getTime() : (deploymentStart ? deploymentStart.getTime() + (7 * 24 * 60 * 60 * 1000) : maxDate.getTime());
+
+                const startX = xAxis.getPixelForValue(startTime);
+                const endX = xAxis.getPixelForValue(endTime);
+                const y = yAxis.getPixelForValue(0);
+
+                console.log('Deployment bar:', {
+                    startTime: new Date(startTime),
+                    endTime: new Date(endTime),
+                    startX: startX,
+                    endX: endX,
+                    barWidth: endX - startX
+                });
+
+                // Draw deployment bar
+                ctx.save();
+                ctx.fillStyle = 'rgba(54, 162, 235, 0.7)';
+                ctx.strokeStyle = 'rgba(54, 162, 235, 1)';
+                ctx.lineWidth = 1;
+
+                const barHeight = 20;
+                ctx.fillRect(startX, y - barHeight/2, endX - startX, barHeight);
+                ctx.strokeRect(startX, y - barHeight/2, endX - startX, barHeight);
+
+                ctx.restore();
+            }
+        }],
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 7, // Adjusted for better spacing with labels and legend
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10,
+                    top: 10,
+                    bottom: 45 // Increased space for HTML labels and legend
+                }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    min: minDate.getTime(),
+                    max: maxDate.getTime(),
+                    display: false // Hide the entire x-axis since we'll use HTML labels
+                },
+                y: {
+                    display: false,
+                    min: -0.5,
+                    max: 0.5
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            return '';
+                        },
+                        label: function(context) {
+                            const dataset = context.dataset;
+                            const timestamp = context.parsed.x;
+                            const date = new Date(timestamp);
+                            const dateStr = date.toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+
+                            if (dataset.label === 'Opens Date') {
+                                return `Opens: ${dateStr}`;
+                            } else if (dataset.label === 'Closes Date') {
+                                return `Closes: ${dateStr}`;
+                            } else if (dataset.label === 'Today') {
+                                return `Today: ${dateStr}`;
+                            }
+                            return dataset.label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Function to create HTML date labels
+    function createDateLabels() {
+        const canvas = document.getElementById('timelineChart');
+        const labelsContainer = document.getElementById('dateLabels');
+
+        if (!canvas || !labelsContainer) {
+            console.error('Canvas or labels container not found');
+            return;
+        }
+
+        // Clear existing labels
+        labelsContainer.innerHTML = '';
+
+        // Get chart dimensions
+        const xAxis = chart.scales.x;
+
+        // Create labels for each milestone date
+        const milestones = [
+            { date: opensDate, label: 'Opens', color: '#4bc94b' },
+            { date: closesDate, label: 'Closes', color: '#ff6384' },
+            { date: deploymentStart, label: 'Start', color: '#36a2eb' },
+            { date: deploymentEnd, label: 'End', color: '#36a2eb' }
+        ].filter(m => m.date); // Remove null dates
+
+        console.log('Creating labels for milestones:', milestones);
+
+        milestones.forEach(milestone => {
+            const timestamp = milestone.date.getTime();
+            const pixelX = xAxis.getPixelForValue(timestamp);
+            const percentage = (pixelX / canvas.offsetWidth) * 100;
+
+            console.log(`${milestone.label}: pixelX=${pixelX}, percentage=${percentage}%`);
+
+            // Create label element
+            const labelDiv = document.createElement('div');
+            labelDiv.style.cssText = `
+                position: absolute;
+                left: ${percentage}%;
+                transform: translateX(-50%);
+                text-align: center;
+                font-size: 10px;
+                font-weight: bold;
+                color: ${milestone.color};
+                white-space: nowrap;
+                top: -5px;
+                z-index: 10;
+            `;
+
+            const dateStr = milestone.date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
+            });
+
+            labelDiv.innerHTML = `
+                <div>${milestone.label}</div>
+                <div style="font-size: 9px; opacity: 0.8;">${dateStr}</div>
+            `;
+
+            labelsContainer.appendChild(labelDiv);
+        });
+    }
+
+    // Create labels after chart is rendered
+    setTimeout(() => {
+        console.log('Creating date labels...');
+        createDateLabels();
+    }, 200);
+
+    // Recreate labels on window resize
+    window.addEventListener('resize', function() {
+        setTimeout(createDateLabels, 200);
+    });
+
+    console.log('Chart and labels setup complete');
+});
+</script>
+{% endif %}
+
+<!-- Country Map Initialization -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the map with dark theme
+        var map = L.map('country-map').setView([0, 0], 2);
+
+        // Use OpenStreetMap tile layer (no API token required)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Optional: Add a dark theme overlay if needed
+        L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution">CARTO</a>',
+            maxZoom: 19,
+            opacity: 0.8
+        }).addTo(map);
+
+        // Get country ISO code from the alert
+        var countryIso = "{% if alert.country %}{{ alert.country.iso }}{% else %}XX{% endif %}";
+
+        if (countryIso && countryIso !== "XX") {
+            // Store country data for later use
+            let countryData = null;
+
+            // Hardcoded risk scores for countries with known issues
+            const hardcodedRiskScores = {
+                'AO': 3.8, // Angola - Medium-High risk
+                'CD': 4.2, // DR Congo - Medium-High risk
+                'SO': 4.5, // Somalia - High risk
+                'SY': 4.7, // Syria - High risk
+                'YE': 4.6, // Yemen - High risk
+                'AF': 4.8, // Afghanistan - High risk
+                'IQ': 4.0, // Iraq - Medium-High risk
+                'LY': 4.3, // Libya - Medium-High risk
+                'SS': 4.4  // South Sudan - Medium-High risk
+            };
+
+            // Check if we have a hardcoded risk score for this country
+            if (hardcodedRiskScores[countryIso]) {
+                console.log(`Using hardcoded risk score for ${countryIso}: ${hardcodedRiskScores[countryIso]}`);
+
+                // Use the hardcoded score
+                const score = hardcodedRiskScores[countryIso];
+
+                // Set risk score on slider
+                const scorePercentage = ((score - 1) / 4) * 100; // Convert 1-5 to 0-100%
+                document.getElementById('risk-score-marker').style.left = `${scorePercentage}%`;
+
+                // Set risk level
+                let riskLevel = "Unknown";
+                if (score <= 1.5) riskLevel = "Low";
+                else if (score <= 2.5) riskLevel = "Medium-Low";
+                else if (score <= 3.5) riskLevel = "Medium";
+                else if (score <= 4.5) riskLevel = "Medium-High";
+                else riskLevel = "High";
+
+                document.getElementById('risk-level').innerHTML = `<strong>Risk Level:</strong> ${riskLevel}`;
+
+                // Create a generic advisory message
+                document.getElementById('us-advisory').innerHTML = `<strong>Advisory:</strong> Exercise increased caution due to crime, civil unrest, and/or terrorism.`;
+
+                // Create generic risk details
+                let detailsHtml = '<h5 class="mt-3">Risk Details</h5><div class="row">';
+                detailsHtml += `
+                <div class="col-6 mb-2">
+                    <strong>Crime:</strong>
+                    <span class="text-warning">Medium-High</span>
+                </div>
+                <div class="col-6 mb-2">
+                    <strong>Civil Unrest:</strong>
+                    <span class="text-danger">High</span>
+                </div>
+                <div class="col-6 mb-2">
+                    <strong>Terrorism:</strong>
+                    <span class="text-warning">Medium</span>
+                </div>
+                <div class="col-6 mb-2">
+                    <strong>Health:</strong>
+                    <span class="text-warning">Medium-High</span>
+                </div>`;
+                detailsHtml += '</div>';
+
+                // Add a disclaimer
+                detailsHtml += `
+                <div class="alert alert-info mt-3">
+                    <strong>Note:</strong> This is estimated risk information. Always check with your country's foreign office for the latest travel advisories before traveling.
+                </div>`;
+
+                document.getElementById('risk-details').innerHTML = detailsHtml;
+
+                // Continue with the rest of the code
+                // Don't return here, so we can still fetch country data for the map
+            }
+
+            // Fetch travel advisory data from TravelBriefing.org API with timeout
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Request timed out')), 5000)
+            );
+
+            Promise.race([
+                fetch(`https://travelbriefing.org/${countryIso}?format=json`),
+                timeoutPromise
+            ])
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.advise) {
+                        // Process advisory data
+                        const advisories = data.advise;
+
+                        // Calculate an overall score based on available advisories (1-5 scale)
+                        let totalScore = 0;
+                        let count = 0;
+                        let usAdvisory = null;
+                        let detailsData = {};
+
+                        // Process each advisory source
+                        for (const [source, advisory] of Object.entries(advisories)) {
+                            if (advisory.score !== undefined) {
+                                // Convert various scales to 1-5 scale
+                                // Some sources use 1-5, others might use different scales
+                                let normalizedScore;
+
+                                if (source === 'CA') {
+                                    // Canada uses 1-4 scale
+                                    normalizedScore = (advisory.score / 4) * 5;
+                                } else if (source === 'UK') {
+                                    // UK might use different scale
+                                    normalizedScore = advisory.score;
+                                } else {
+                                    normalizedScore = advisory.score;
+                                }
+
+                                totalScore += normalizedScore;
+                                count++;
+
+                                // Store details for each source
+                                detailsData[source] = normalizedScore;
+
+                                // Store US advisory specifically
+                                if (source === 'US') {
+                                    usAdvisory = advisory.message;
+                                }
+                            }
+                        }
+
+                        // Calculate average score if we have data
+                        let score = count > 0 ? totalScore / count : 3; // Default to medium if no data
+
+                        // Ensure score is within 1-5 range
+                        score = Math.max(1, Math.min(5, score));
+
+                        // Set risk score on slider
+                        const scorePercentage = ((score - 1) / 4) * 100; // Convert 1-5 to 0-100%
+                        document.getElementById('risk-score-marker').style.left = `${scorePercentage}%`;
+
+                        // Set risk level
+                        let riskLevel = "Unknown";
+                        if (score <= 1.5) riskLevel = "Low";
+                        else if (score <= 2.5) riskLevel = "Medium-Low";
+                        else if (score <= 3.5) riskLevel = "Medium";
+                        else if (score <= 4.5) riskLevel = "Medium-High";
+                        else riskLevel = "High";
+
+                        document.getElementById('risk-level').innerHTML = `<strong>Risk Level:</strong> ${riskLevel}`;
+
+                        // Display US advisory if available
+                        if (usAdvisory) {
+                            document.getElementById('us-advisory').innerHTML = `<strong>US Advisory:</strong> ${usAdvisory}`;
+                        } else {
+                            document.getElementById('us-advisory').innerHTML = '';
+                        }
+
+                        // Display risk details
+                        if (Object.keys(detailsData).length > 0) {
+                            let detailsHtml = '<h5 class="mt-3">Risk Details by Source</h5><div class="row">';
+
+                            for (const [source, value] of Object.entries(detailsData)) {
+                                let colorClass = '';
+                                if (value <= 1.5) colorClass = 'text-success'; // Green for low
+                                else if (value <= 3.5) colorClass = 'text-warning'; // Orange for medium
+                                else colorClass = 'text-danger'; // Red for high
+
+                                // Get source name
+                                let sourceName;
+                                switch(source) {
+                                    case 'US': sourceName = 'United States'; break;
+                                    case 'UK': sourceName = 'United Kingdom'; break;
+                                    case 'CA': sourceName = 'Canada'; break;
+                                    case 'AU': sourceName = 'Australia'; break;
+                                    default: sourceName = source;
+                                }
+
+                                detailsHtml += `
+                                <div class="col-6 mb-2">
+                                    <strong>${sourceName}:</strong>
+                                    <span class="${colorClass}">${value.toFixed(1)}</span>
+                                </div>`;
+                            }
+
+                            detailsHtml += '</div>';
+
+                            // Add additional safety information if available
+                            if (data.safety) {
+                                detailsHtml += '<h5 class="mt-3">Safety Information</h5><div class="row">';
+
+                                for (const [key, info] of Object.entries(data.safety)) {
+                                    if (info.rating !== undefined) {
+                                        let rating = parseFloat(info.rating);
+                                        let colorClass = '';
+                                        if (rating <= 1.5) colorClass = 'text-success'; // Green for low
+                                        else if (rating <= 3.5) colorClass = 'text-warning'; // Orange for medium
+                                        else colorClass = 'text-danger'; // Red for high
+
+                                        const formattedKey = key.charAt(0).toUpperCase() + key.slice(1).replace('_', ' ');
+                                        detailsHtml += `
+                                        <div class="col-6 mb-2">
+                                            <strong>${formattedKey}:</strong>
+                                            <span class="${colorClass}">${rating.toFixed(1)}</span>
+                                        </div>`;
+                                    }
+                                }
+
+                                detailsHtml += '</div>';
+                            }
+
+                            document.getElementById('risk-details').innerHTML = detailsHtml;
+                        }
+                    } else {
+                        document.getElementById('travel-advisory').innerHTML = '<div class="alert alert-warning">No travel advisory data available for this country.</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching travel advisory data from TravelBriefing.org:', error);
+
+                    // Check if we should use a default risk score for this country
+                    // This is a fallback in case the hardcoded list doesn't include this country
+                    // but we still want to show some risk information
+                    const defaultRiskScore = 3.0; // Medium risk as default
+
+                    // Log the country we're having issues with
+                    console.log(`Using default risk score for ${countryIso}: ${defaultRiskScore}`);
+
+                    // Use the default score
+                    const score = defaultRiskScore;
+
+                    // Set risk score on slider
+                    const scorePercentage = ((score - 1) / 4) * 100; // Convert 1-5 to 0-100%
+                    document.getElementById('risk-score-marker').style.left = `${scorePercentage}%`;
+
+                    // Set risk level
+                    let riskLevel = "Medium"; // Default to Medium
+                    document.getElementById('risk-level').innerHTML = `<strong>Risk Level:</strong> ${riskLevel} (Estimated)`;
+
+                    // Create a generic advisory message
+                    document.getElementById('us-advisory').innerHTML = `<strong>Advisory:</strong> Check with your country's foreign office for travel advisories.`;
+
+                    // Create generic risk details
+                    let detailsHtml = '<h5 class="mt-3">Estimated Risk Details</h5><div class="row">';
+                    detailsHtml += `
+                    <div class="col-6 mb-2">
+                        <strong>Crime:</strong>
+                        <span class="text-warning">Medium</span>
                     </div>
-                {% else %}
-                    <p class="text-muted">No tags available.</p>
-                {% endif %}
-            </div>
-        </div>
+                    <div class="col-6 mb-2">
+                        <strong>Civil Unrest:</strong>
+                        <span class="text-warning">Medium</span>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <strong>Terrorism:</strong>
+                        <span class="text-warning">Medium</span>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <strong>Health:</strong>
+                        <span class="text-warning">Medium</span>
+                    </div>`;
+                    detailsHtml += '</div>';
 
-        <div class="d-grid gap-2">
-            <a href="{% url 'surge:alert_list' %}" class="btn btn-secondary">Back to List</a>
-            <a href="/admin/surge/surgealert/{{ alert.id }}/change/" class="btn btn-primary">Edit in Admin</a>
-        </div>
-    </div>
-</div>
-{% endblock %}
+                    // Add a disclaimer
+                    detailsHtml += `
+                    <div class="alert alert-warning mt-3">
+                        <strong>Note:</strong> This is estimated risk information based on default values.
+                        The travel advisory API is currently unavailable. Always check with your country's
+                        foreign office for the latest travel advisories before traveling.
+                    </div>`;
+
+                    document.getElementById('risk-details').innerHTML = detailsHtml;
+
+                    // Fallback to another API: REST Countries for basic info
+                    fetch(`https://restcountries.com/v3.1/alpha/${countryIso}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.length > 0) {
+                                const country = data[0];
+
+                                // Create a basic info display as fallback
+                                let fallbackHtml = `
+                                    <div class="alert alert-warning mb-3">
+                                        <strong>Note:</strong> Travel advisory data could not be loaded. Showing basic country information instead.
+                                    </div>
+                                    <h5>Basic Country Information</h5>
+                                    <div class="row">
+                                        <div class="col-6 mb-2">
+                                            <strong>Official Name:</strong> ${country.name.official || 'N/A'}
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <strong>Population:</strong> ${country.population ? country.population.toLocaleString() : 'N/A'}
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <strong>Region:</strong> ${country.region || 'N/A'}
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <strong>Subregion:</strong> ${country.subregion || 'N/A'}
+                                        </div>
+                                    </div>`;
+
+                                // Add languages if available
+                                if (country.languages && Object.keys(country.languages).length > 0) {
+                                    fallbackHtml += '<h5 class="mt-3">Languages</h5><div class="row">';
+                                    for (const [code, name] of Object.entries(country.languages)) {
+                                        fallbackHtml += `
+                                        <div class="col-6 mb-2">
+                                            <strong>${code}:</strong> ${name}
+                                        </div>`;
+                                    }
+                                    fallbackHtml += '</div>';
+                                }
+
+                                // Add currencies if available
+                                if (country.currencies && Object.keys(country.currencies).length > 0) {
+                                    fallbackHtml += '<h5 class="mt-3">Currencies</h5><div class="row">';
+                                    for (const [code, currency] of Object.entries(country.currencies)) {
+                                        fallbackHtml += `
+                                        <div class="col-6 mb-2">
+                                            <strong>${code}:</strong> ${currency.name} (${currency.symbol || 'N/A'})
+                                        </div>`;
+                                    }
+                                    fallbackHtml += '</div>';
+                                }
+
+                                // Add a generic risk level disclaimer
+                                fallbackHtml += `
+                                    <div class="alert alert-info mt-3">
+                                        <strong>Travel Advisory:</strong> Always check with your country's foreign office for the latest travel advisories before traveling.
+                                    </div>`;
+
+                                document.getElementById('travel-advisory').innerHTML = fallbackHtml;
+
+                                // Hide the risk score slider since we don't have that data
+                                document.querySelector('.risk-score-container').style.display = 'none';
+                                document.getElementById('risk-level').style.display = 'none';
+                                document.getElementById('us-advisory').style.display = 'none';
+                            } else {
+                                document.getElementById('travel-advisory').innerHTML = '<div class="alert alert-danger">Error loading country information.</div>';
+                            }
+                        })
+                        .catch(fallbackError => {
+                            console.error('Error fetching fallback country data:', fallbackError);
+                            document.getElementById('travel-advisory').innerHTML = '<div class="alert alert-danger">Error loading travel advisory and country information.</div>';
+                        });
+                });
+
+            // First fetch country data to center the map
+            fetch(`https://restcountries.com/v3.1/alpha/${countryIso}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Store the country data
+                    countryData = data;
+
+                    if (data && data.length > 0) {
+                        // Center map on country
+                        if (data[0].latlng && data[0].latlng.length === 2) {
+                            map.setView([data[0].latlng[0], data[0].latlng[1]], 4);
+
+                            // Add a marker for the capital city if available
+                            if (data[0].capital && data[0].capital.length > 0 && data[0].capitalInfo && data[0].capitalInfo.latlng) {
+                                const capitalLat = data[0].capitalInfo.latlng[0];
+                                const capitalLng = data[0].capitalInfo.latlng[1];
+
+                                // Create a custom icon for the capital
+                                const capitalIcon = L.divIcon({
+                                    html: '<i class="fas fa-star" style="color: #ffcc00;"></i>',
+                                    className: 'capital-icon',
+                                    iconSize: [20, 20]
+                                });
+
+                                // Add the capital marker
+                                L.marker([capitalLat, capitalLng], {icon: capitalIcon})
+                                    .addTo(map)
+                                    .bindPopup(`<b>Capital:</b> ${data[0].capital[0]}`);
+
+                                // Add a label for the capital
+                                L.marker([capitalLat, capitalLng], {
+                                    icon: L.divIcon({
+                                        html: `<div style="color: white; font-weight: bold; text-shadow: 1px 1px 2px black;">${data[0].capital[0]}</div>`,
+                                        className: 'capital-label',
+                                        iconSize: [100, 20],
+                                        iconAnchor: [50, 0]
+                                    })
+                                }).addTo(map);
+                            }
+                        }
+                    }
+
+                    // Now fetch the country boundaries from a GeoJSON service
+                    // Try with geoBoundaries API which provides detailed country boundaries
+                    return fetch(`https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson`);
+                })
+                .then(response => response.json())
+                .then(geoData => {
+                    if (geoData && geoData.features) {
+                        // Find the target country in the GeoJSON collection
+                        const targetCountryFeature = geoData.features.find(feature =>
+                            feature.properties.ISO_A2 === countryIso ||
+                            feature.properties.ISO_A2_EH === countryIso
+                        );
+
+                        // Add all countries to the map with different styling
+                        L.geoJSON(geoData.features, {
+                            style: function(feature) {
+                                // Check if this is the target country
+                                const isTargetCountry =
+                                    feature.properties.ISO_A2 === countryIso ||
+                                    feature.properties.ISO_A2_EH === countryIso;
+
+                                // Style for target country vs surrounding countries
+                                if (isTargetCountry) {
+                                    return {
+                                        color: "#ff7800",
+                                        weight: 2,
+                                        opacity: 0.9,
+                                        fillOpacity: 0.4
+                                    };
+                                } else {
+                                    return {
+                                        color: "#555555",
+                                        weight: 1,
+                                        opacity: 0.7,
+                                        fillOpacity: 0.1
+                                    };
+                                }
+                            },
+                            onEachFeature: function(feature, layer) {
+                                // Add country name as popup for each country
+                                if (feature.properties.NAME) {
+                                    // Check if this is the target country
+                                    const isTargetCountry =
+                                        feature.properties.ISO_A2 === countryIso ||
+                                        feature.properties.ISO_A2_EH === countryIso;
+
+                                    if (isTargetCountry && countryData && countryData.length > 0) {
+                                        // Create a more detailed popup for the target country
+                                        const country = countryData[0];
+                                        let popupContent = `
+                                            <div style="min-width: 200px;">
+                                                <h5>${country.name.common}</h5>
+                                                <hr style="margin: 5px 0;">
+                                                <p><strong>Capital:</strong> ${country.capital ? country.capital[0] : 'N/A'}</p>
+                                                <p><strong>Population:</strong> ${country.population ? country.population.toLocaleString() : 'N/A'}</p>
+                                                <p><strong>Region:</strong> ${country.region || 'N/A'}</p>
+                                                <p><strong>Subregion:</strong> ${country.subregion || 'N/A'}</p>
+                                            </div>
+                                        `;
+                                        layer.bindPopup(popupContent);
+                                    } else {
+                                        layer.bindPopup(feature.properties.NAME);
+                                    }
+                                }
+                            }
+                        }).addTo(map);
+
+                        if (!targetCountryFeature) {
+                            console.error('Target country not found in GeoJSON data:', countryIso);
+                            // Try with Nominatim as fallback
+                            return fetch(`https://nominatim.openstreetmap.org/search?country=${countryIso}&polygon_geojson=1&format=json`);
+                        }
+                    } else {
+                        console.error('Invalid GeoJSON data');
+                        return fetch(`https://nominatim.openstreetmap.org/search?country=${countryIso}&polygon_geojson=1&format=json`);
+                    }
+                })
+                .then(response => {
+                    if (response && response.json) {
+                        return response.json();
+                    }
+                    return null;
+                })
+                .then(data => {
+                    if (data && data.length > 0 && data[0].geojson) {
+                        // Add the country boundaries to the map from Nominatim
+                        L.geoJSON(data[0].geojson, {
+                            style: {
+                                color: "#ff7800",
+                                weight: 2,
+                                opacity: 0.65,
+                                fillOpacity: 0.4
+                            }
+                        }).addTo(map);
+                    } else if (data !== null) {
+                        console.error('No GeoJSON data found for country in fallback:', countryIso);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching country data:', error);
+                    // Fallback: Just show a message on the map
+                    L.popup()
+                        .setLatLng([0, 0])
+                        .setContent("Could not load map for country: " + countryIso)
+                        .openOn(map);
+                });
+        } else {
+            // No country code available
+            L.popup()
+                .setLatLng([0, 0])
+                .setContent("No country information available")
+                .openOn(map);
+        }
+    });
+</script>
+
+</body>
+</html>
