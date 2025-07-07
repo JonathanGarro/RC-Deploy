@@ -68,7 +68,7 @@ class SurgeAlert(models.Model):
     country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True)
     deployment_needed = models.BooleanField(default=False)
     is_private = models.BooleanField(default=False)
-    event = models.IntegerField(blank=True, null=True)
+    event = models.ForeignKey('Event', on_delete=models.SET_NULL, null=True, blank=True, related_name='surge_alerts', db_column='event')
     created_at = models.DateTimeField()
     atype = models.IntegerField(blank=True, null=True)
     atype_display = models.CharField(max_length=100, blank=True, null=True)
@@ -89,3 +89,38 @@ class SurgeAlert(models.Model):
 
     def __str__(self):
         return f"Alert {self.api_id}: {self.message}"
+
+
+class DisasterType(models.Model):
+    """
+    Model to store disaster type information from the IFRC API.
+    """
+    api_id = models.IntegerField(unique=True)
+    name = models.CharField(max_length=255)
+    summary = models.TextField(blank=True, null=True)
+    translation_module_original_language = models.CharField(max_length=10, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Event(models.Model):
+    """
+    Model to store event information from the IFRC API.
+    """
+    api_id = models.IntegerField(unique=True)
+    name = models.CharField(max_length=255)
+    summary = models.TextField(blank=True, null=True)
+    dtype = models.ForeignKey(DisasterType, on_delete=models.SET_NULL, null=True, blank=True)
+    countries = models.ManyToManyField(Country, blank=True)
+    ifrc_severity_level = models.IntegerField(blank=True, null=True)
+    ifrc_severity_level_display = models.CharField(max_length=100, blank=True, null=True)
+    glide = models.CharField(max_length=100, blank=True, null=True)
+    disaster_start_date = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField()
+    active_deployments = models.IntegerField(default=0)
+    translation_module_original_language = models.CharField(max_length=10, blank=True, null=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Event {self.api_id}: {self.name}"
