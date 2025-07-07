@@ -8,7 +8,7 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from celery import shared_task
-from .models import Country, MolnixTag, SurgeAlert, ApiStatus
+from .models import Country, MolnixTag, SurgeAlert, ApiStatus, DisasterType, Event
 
 logger = logging.getLogger(__name__)
 
@@ -195,15 +195,28 @@ def process_surge_alert(alert_data, country_obj):
         alert.is_private = alert_data.get('is_private', False)
 
         # Handle event field which can be either a number or a complex object
+        event_id = None
         event = alert_data.get('event')
         if isinstance(event, dict):
             # If event is a dictionary, try to extract the id
-            alert.event = event.get('id') if event else None
-            logger.debug(f"Extracted event ID {alert.event} from event object for surge alert {alert_data['id']}")
+            event_id = event.get('id') if event else None
+            logger.debug(f"Extracted event ID {event_id} from event object for surge alert {alert_data['id']}")
         else:
             # Otherwise use the value directly
-            alert.event = event
-            logger.debug(f"Using direct event value {alert.event} for surge alert {alert_data['id']}")
+            event_id = event
+            logger.debug(f"Using direct event value {event_id} for surge alert {alert_data['id']}")
+
+        # Look up the Event object by ID
+        if event_id:
+            try:
+                event_obj = Event.objects.get(api_id=event_id)
+                alert.event = event_obj
+                logger.debug(f"Associated surge alert {alert_data['id']} with event: {event_obj.name} (ID: {event_obj.api_id})")
+            except Event.DoesNotExist:
+                logger.warning(f"Event with ID {event_id} not found for surge alert {alert_data['id']}")
+                alert.event = None
+        else:
+            alert.event = None
 
         # Parse datetime fields
         for field_name in ['created_at', 'opens', 'closes', 'start', 'end']:
@@ -318,5 +331,207 @@ def parse_datetime(dt_str):
         return None
     except Exception as e:
         logger.error(f"Unexpected error parsing datetime {dt_str}: {e}")
+        logger.exception("Full exception details:")
+        return None
+
+
+@shared_task
+def fetch_events():
+    """
+    Fetch events from the IFRC API and store them in the database.
+    Handles pagination and checks for new and updated records.
+    """
+    logger.info("Starting event data fetch")
+
+    url = "https://goadmin.ifrc.org/api/v2/event/"
+    logger.debug(f"Using API URL: {url}")
+
+    next_page = url
+    total_created = 0
+    total_updated = 0
+    page_count = 0
+
+    while next_page:
+        page_count += 1
+        logger.info(f"Fetching data from page {page_count}: {next_page}")
+        try:
+            logger.debug(f"Sending GET request to: {next_page}")
+            response = requests.get(next_page)
+            response.raise_for_status()
+
+            logger.debug(f"Received response with status code: {response.status_code}")
+            data = response.json()
+
+            # Process the results
+            results = data.get('results', [])
+            logger.info(f"Retrieved {len(results)} records from page {page_count}")
+
+            if not results:
+                logger.warning("No results found in the API response")
+
+            process_event_results(results)
+
+            # Update counters
+            new_created = len([r for r in results if r.get('_created', False)])
+            new_updated = len([r for r in results if r.get('_updated', False)])
+            total_created += new_created
+            total_updated += new_updated
+
+            logger.info(f"Page {page_count} processing complete. Created: {new_created}, Updated: {new_updated}")
+
+            # Check for next page
+            next_page = data.get('next')
+            if next_page:
+                logger.debug(f"Next page URL: {next_page}")
+            else:
+                logger.debug("No more pages to fetch")
+
+        except requests.RequestException as e:
+            logger.error(f"Error fetching data from API: {e}")
+            logger.exception("Full exception details:")
+            break
+        except ValueError as e:
+            logger.error(f"Error parsing JSON response: {e}")
+            logger.exception("Full exception details:")
+            break
+        except Exception as e:
+            logger.error(f"Unexpected error processing data: {e}")
+            logger.exception("Full exception details:")
+            break
+
+    logger.info(f"Completed event data fetch. Total pages: {page_count}, Created: {total_created}, Updated: {total_updated}")
+
+    # Update the API status
+    api_status, created = ApiStatus.objects.update_or_create(
+        name='events',
+        defaults={'last_run': timezone.now()}
+    )
+    logger.info(f"Updated API status: {api_status}")
+
+    return {'created': total_created, 'updated': total_updated}
+
+
+def process_event_results(results):
+    """
+    Process the event results from the API and save to the database.
+    """
+    logger.debug(f"Processing {len(results)} event results")
+
+    for i, item in enumerate(results):
+        logger.debug(f"Processing event item {i+1}/{len(results)} with ID: {item.get('id')}")
+        with transaction.atomic():
+            try:
+                # Process disaster type data if present
+                dtype_obj = None
+                if item.get('dtype'):
+                    logger.debug(f"Processing disaster type data for event ID: {item.get('id')}")
+                    dtype_obj = process_disaster_type(item['dtype'])
+                else:
+                    logger.debug(f"No disaster type data for event ID: {item.get('id')}")
+
+                # Process countries data
+                country_objs = []
+                if item.get('countries'):
+                    logger.debug(f"Processing {len(item['countries'])} countries for event ID: {item.get('id')}")
+                    for country_data in item['countries']:
+                        country_obj = process_country(country_data)
+                        if country_obj:
+                            country_objs.append(country_obj)
+                else:
+                    logger.debug(f"No countries data for event ID: {item.get('id')}")
+
+                # Process event
+                process_event(item, dtype_obj, country_objs)
+
+            except Exception as e:
+                logger.error(f"Error processing event item {item.get('id')}: {e}")
+                logger.exception("Full exception details:")
+
+
+def process_disaster_type(dtype_data):
+    """
+    Process disaster type data and return the DisasterType object.
+    """
+    if not dtype_data:
+        logger.warning("Empty disaster type data received")
+        return None
+
+    if not dtype_data.get('id'):
+        logger.warning(f"Disaster type data missing ID: {dtype_data}")
+        return None
+
+    logger.debug(f"Processing disaster type with ID: {dtype_data['id']}")
+
+    try:
+        dtype, created = DisasterType.objects.update_or_create(
+            api_id=dtype_data['id'],
+            defaults={
+                'name': dtype_data.get('name', 'Unknown'),
+                'summary': dtype_data.get('summary', ''),
+                'translation_module_original_language': dtype_data.get('translation_module_original_language')
+            }
+        )
+
+        if created:
+            logger.info(f"Created new disaster type: {dtype.name} (ID: {dtype.api_id})")
+        else:
+            logger.debug(f"Updated existing disaster type: {dtype.name} (ID: {dtype.api_id})")
+
+        return dtype
+    except Exception as e:
+        logger.error(f"Error processing disaster type with ID {dtype_data.get('id')}: {e}")
+        logger.exception("Full exception details:")
+        return None
+
+
+def process_event(event_data, dtype_obj, country_objs):
+    """
+    Process event data and save to the database.
+    """
+    if not event_data:
+        logger.warning("Empty event data received")
+        return None
+
+    if not event_data.get('id'):
+        logger.warning(f"Event data missing ID: {event_data}")
+        return None
+
+    logger.debug(f"Processing event with ID: {event_data['id']}")
+
+    try:
+        event, created = Event.objects.update_or_create(
+            api_id=event_data['id'],
+            defaults={
+                'name': event_data.get('name', 'Unknown'),
+                'summary': event_data.get('summary', ''),
+                'dtype': dtype_obj,
+                'ifrc_severity_level': event_data.get('ifrc_severity_level'),
+                'ifrc_severity_level_display': event_data.get('ifrc_severity_level_display'),
+                'glide': event_data.get('glide', ''),
+                'disaster_start_date': parse_datetime(event_data.get('disaster_start_date')),
+                'created_at': parse_datetime(event_data.get('created_at')) or timezone.now(),
+                'active_deployments': event_data.get('active_deployments', 0)
+            }
+        )
+
+        # Add countries
+        if country_objs:
+            logger.debug(f"Adding {len(country_objs)} countries to event ID: {event_data['id']}")
+            event.countries.clear()
+            for country in country_objs:
+                event.countries.add(country)
+
+        # Mark if created or updated for reporting
+        event_data['_created'] = created
+        event_data['_updated'] = not created
+
+        if created:
+            logger.info(f"Created new event: {event.name} (ID: {event.api_id})")
+        else:
+            logger.info(f"Updated event: {event.name} (ID: {event.api_id})")
+
+        return event
+    except Exception as e:
+        logger.error(f"Error processing event with ID {event_data.get('id')}: {e}")
         logger.exception("Full exception details:")
         return None
