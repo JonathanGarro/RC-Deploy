@@ -205,44 +205,6 @@ Page content START -->
 							<li class="list-inline-item fw-light h6"><i class="fas fa-info-circle me-2"></i>{{ alert.molnix_status_display }}</li>
 						</ul>
 
-						<!-- Timeline Visualization START -->
-						{% if show_timeline %}
-						<div class="mt-4">
-							<div class="card border">
-								<div class="card-body position-relative" style="height: 150px; overflow: hidden; padding-bottom: 30px;">
-									<canvas id="timelineChart" height="100"></canvas>
-									<div id="dateLabels" class="position-absolute start-0 w-100" style="height: 25px; pointer-events: none; top: 70px;"></div>
-									<div class="mt-2 small text-center">
-										<span class="me-4">
-											<svg width="16" height="10" style="vertical-align: middle;">
-												<rect width="16" height="6" fill="rgba(54, 162, 235, 0.7)" stroke="rgba(54, 162, 235, 1)" stroke-width="1" y="2"></rect>
-											</svg>
-											Deployment Period
-										</span>
-										<span class="me-4">
-											<svg width="12" height="12" style="vertical-align: middle;">
-												<rect x="6" y="6" width="8" height="8" fill="rgba(75, 192, 75, 1)" stroke="rgba(75, 192, 75, 1)" stroke-width="1" transform="translate(-4,-4) rotate(45, 6, 6)"></rect>
-											</svg>
-											Opens Date
-										</span>
-										<span class="me-4">
-											<svg width="12" height="12" style="vertical-align: middle;">
-												<rect x="6" y="6" width="8" height="8" fill="rgba(255, 99, 132, 1)" stroke="rgba(255, 99, 132, 1)" stroke-width="1" transform="translate(-4,-4) rotate(45, 6, 6)"></rect>
-											</svg>
-											Closes Date
-										</span>
-										<span class="me-4">
-											<svg width="12" height="12" style="vertical-align: middle;">
-												<polygon points="6,0 12,12 0,12" fill="rgba(255, 159, 64, 1)" stroke="rgba(255, 159, 64, 1)" stroke-width="1"></polygon>
-											</svg>
-											Today
-										</span>
-									</div>
-								</div>
-							</div>
-						</div>
-						{% endif %}
-						<!-- Timeline Visualization END -->
 					</div>
 					<!-- Title END -->
 
@@ -302,6 +264,7 @@ Page content START -->
 									</div>
 								</div>
 							</div>
+
 
 							<!-- Rotation Box -->
 							<div class="col-md-6">
@@ -372,62 +335,79 @@ Page content START -->
 					</div>
 					<!-- Info Boxes END -->
 
-					<!-- Alert Details START -->
+					<!-- Event Details START -->
 					<div class="col-12">
 						<div class="card border">
 							<!-- Card header START -->
 							<div class="card-header border-bottom">
-								<h3 class="mb-0">Alert Details</h3>
+								<h3 class="mb-0">Event Details</h3>
 							</div>
 							<!-- Card header END -->
 
 							<!-- Card body START -->
 							<div class="card-body">
-								<div class="row mb-3">
-									<div class="col-md-4 fw-bold">ID:</div>
-									<div class="col-md-8">{{ alert.api_id }}</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col-md-4 fw-bold">Message:</div>
-									<div class="col-md-8">{{ alert.message }}</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col-md-4 fw-bold">Country:</div>
-									<div class="col-md-8">{% if alert.country %}{{ alert.country.name }}{% else %}N/A{% endif %}</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col-md-4 fw-bold">Status:</div>
-									<div class="col-md-8">{{ alert.molnix_status_display }}</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col-md-4 fw-bold">Type:</div>
-									<div class="col-md-8">{{ alert.atype_display }}</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col-md-4 fw-bold">Category:</div>
-									<div class="col-md-8">{{ alert.category_display }}</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col-md-4 fw-bold">Molnix ID:</div>
-									<div class="col-md-8">{{ alert.molnix_id }}</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col-md-4 fw-bold">Operation:</div>
-									<div class="col-md-8">{{ alert.operation|default:"N/A" }}</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col-md-4 fw-bold">Deployment Needed:</div>
-									<div class="col-md-8">{{ alert.deployment_needed|yesno:"Yes,No" }}</div>
-								</div>
-								<div class="row mb-3">
-									<div class="col-md-4 fw-bold">Private:</div>
-									<div class="col-md-8">{{ alert.is_private|yesno:"Yes,No" }}</div>
-								</div>
+								{% if alert.event %}
+									<div class="row mb-3">
+										<div class="col-md-4 fw-bold">Event Name:</div>
+										<div class="col-md-8">{{ alert.event.name }}</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4 fw-bold">Event ID:</div>
+										<div class="col-md-8">{{ alert.event.api_id }}</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4 fw-bold">Disaster Type:</div>
+										<div class="col-md-8">{% if alert.event.dtype %}{{ alert.event.dtype.name }}{% else %}N/A{% endif %}</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4 fw-bold">Severity Level:</div>
+										<div class="col-md-8">
+											<span class="badge bg-{{ alert.event.ifrc_severity_level_display|lower }}">{{ alert.event.ifrc_severity_level_display }}</span>
+										</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4 fw-bold">GLIDE Number:</div>
+										<div class="col-md-8">{{ alert.event.glide|default:"N/A" }}</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4 fw-bold">Disaster Start Date:</div>
+										<div class="col-md-8">{{ alert.event.disaster_start_date|date:"Y-m-d H:i"|default:"N/A" }}</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4 fw-bold">Countries:</div>
+										<div class="col-md-8">
+											{% for country in alert.event.countries.all %}
+												{{ country.name }}{% if not forloop.last %}, {% endif %}
+											{% empty %}
+												N/A
+											{% endfor %}
+										</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4 fw-bold">Created:</div>
+										<div class="col-md-8">{{ alert.event.created_at|date:"Y-m-d H:i" }}</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-md-4 fw-bold">Last Updated:</div>
+										<div class="col-md-8">{{ alert.event.last_updated|date:"Y-m-d H:i" }}</div>
+									</div>
+									<div class="row mb-3">
+										<div class="col-12">
+											<a href="https://go.ifrc.org/emergencies/{{ alert.event.api_id }}/details" class="btn btn-primary" target="_blank">
+												<i class="fas fa-external-link-alt me-2"></i> View on GO
+											</a>
+										</div>
+									</div>
+								{% else %}
+									<div class="alert alert-info">
+										<i class="fas fa-info-circle me-2"></i> No event associated with this alert.
+									</div>
+								{% endif %}
 							</div>
 							<!-- Card body END -->
 						</div>
 					</div>
-					<!-- Alert Details END -->
+					<!-- Event Details END -->
 
 					<!-- Dates START -->
 					<div class="col-12">
@@ -528,6 +508,46 @@ Page content START -->
 							</div>
 						</div>
 						<!-- Country Information END -->
+
+						<!-- Timeline Visualization START -->
+						<div class="col-md-6 col-xl-12">
+							{% if show_timeline %}
+							<div class="card card-body border p-4">
+								<h4 class="mb-3">Timeline</h4>
+								<div class="position-relative" style="height: 150px; overflow: hidden; padding-bottom: 30px;">
+									<canvas id="timelineChart" height="100"></canvas>
+									<div id="dateLabels" class="position-absolute start-0 w-100" style="height: 25px; pointer-events: none; top: 70px;"></div>
+									<div class="mt-2 small text-center">
+										<span class="me-4">
+											<svg width="16" height="10" style="vertical-align: middle;">
+												<rect width="16" height="6" fill="rgba(54, 162, 235, 0.7)" stroke="rgba(54, 162, 235, 1)" stroke-width="1" y="2"></rect>
+											</svg>
+											Deployment Period
+										</span>
+										<span class="me-4">
+											<svg width="12" height="12" style="vertical-align: middle;">
+												<rect x="6" y="6" width="8" height="8" fill="rgba(75, 192, 75, 1)" stroke="rgba(75, 192, 75, 1)" stroke-width="1" transform="translate(-4,-4) rotate(45, 6, 6)"></rect>
+											</svg>
+											Opens Date
+										</span>
+										<span class="me-4">
+											<svg width="12" height="12" style="vertical-align: middle;">
+												<rect x="6" y="6" width="8" height="8" fill="rgba(255, 99, 132, 1)" stroke="rgba(255, 99, 132, 1)" stroke-width="1" transform="translate(-4,-4) rotate(45, 6, 6)"></rect>
+											</svg>
+											Closes Date
+										</span>
+										<span class="me-4">
+											<svg width="12" height="12" style="vertical-align: middle;">
+												<polygon points="6,0 12,12 0,12" fill="rgba(255, 159, 64, 1)" stroke="rgba(255, 159, 64, 1)" stroke-width="1"></polygon>
+											</svg>
+											Today
+										</span>
+									</div>
+								</div>
+							</div>
+							{% endif %}
+						</div>
+						<!-- Timeline Visualization END -->
 
 						<!-- Tags START -->
 						<div class="col-md-6 col-xl-12">

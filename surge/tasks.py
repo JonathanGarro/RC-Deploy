@@ -18,7 +18,12 @@ def fetch_surge_alerts():
     """
     Fetch surge alerts from the IFRC API and store them in the database.
     Handles pagination and checks for new and updated records.
+    First fetches events to ensure they exist in the database.
     """
+    # First fetch events to ensure they exist in the database
+    logger.info("Fetching events before surge alerts")
+    fetch_events()
+
     logger.info("Starting surge alert data fetch")
     logger.debug(f"Using API URL: {settings.IFRC_API_URL}")
 
@@ -214,7 +219,39 @@ def process_surge_alert(alert_data, country_obj):
                 logger.debug(f"Associated surge alert {alert_data['id']} with event: {event_obj.name} (ID: {event_obj.api_id})")
             except Event.DoesNotExist:
                 logger.warning(f"Event with ID {event_id} not found for surge alert {alert_data['id']}")
-                alert.event = None
+                # Try to fetch the event from the API and create it
+                try:
+                    logger.info(f"Attempting to fetch event {event_id} from API for surge alert {alert_data['id']}")
+                    event_url = f"https://goadmin.ifrc.org/api/v2/event/{event_id}/"
+                    event_response = requests.get(event_url)
+                    event_response.raise_for_status()
+                    event_data = event_response.json()
+
+                    # Process disaster type if present
+                    dtype_obj = None
+                    if event_data.get('dtype'):
+                        dtype_obj = process_disaster_type(event_data['dtype'])
+
+                    # Process countries if present
+                    country_objs = []
+                    if event_data.get('countries'):
+                        for country_data in event_data['countries']:
+                            country_obj = process_country(country_data)
+                            if country_obj:
+                                country_objs.append(country_obj)
+
+                    # Process the event
+                    event_obj = process_event(event_data, dtype_obj, country_objs)
+                    if event_obj:
+                        alert.event = event_obj
+                        logger.info(f"Successfully created and associated event {event_obj.api_id} with surge alert {alert_data['id']}")
+                    else:
+                        logger.warning(f"Failed to create event {event_id} for surge alert {alert_data['id']}")
+                        alert.event = None
+                except Exception as e:
+                    logger.error(f"Error fetching or processing event {event_id} from API: {e}")
+                    logger.exception("Full exception details:")
+                    alert.event = None
         else:
             alert.event = None
 

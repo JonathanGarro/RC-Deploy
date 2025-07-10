@@ -5,7 +5,7 @@ import json
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView
 from django.utils import timezone
-from .models import SurgeAlert, Country, MolnixTag
+from .models import SurgeAlert, Country, MolnixTag, Event
 
 
 class SurgeAlertListView(ListView):
@@ -125,5 +125,37 @@ class SurgeAlertDetailView(DetailView):
             context['show_timeline'] = True
         else:
             context['show_timeline'] = False
+
+        return context
+
+
+class EventDetailView(DetailView):
+    """
+    View to display details of an event.
+    """
+    model = Event
+    template_name = 'surge/event_detail.html'
+    context_object_name = 'event'
+
+    def get_object(self, queryset=None):
+        """
+        Get the object this view is displaying.
+        Use the api_id from the URL instead of the primary key.
+        """
+        if queryset is None:
+            queryset = self.get_queryset()
+
+        api_id = self.kwargs.get('api_id')
+        return queryset.get(api_id=api_id)
+
+    def get_context_data(self, **kwargs):
+        """
+        Add related surge alerts to context.
+        """
+        context = super().get_context_data(**kwargs)
+        event = self.object
+
+        # Get related surge alerts
+        context['surge_alerts'] = SurgeAlert.objects.filter(event=event).order_by('-created_at')
 
         return context

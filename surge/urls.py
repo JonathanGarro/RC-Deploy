@@ -9,4 +9,5 @@ app_name = 'surge'
 urlpatterns = [
     path('', views.SurgeAlertListView.as_view(), name='alert_list'),
     path('<int:api_id>/', views.SurgeAlertDetailView.as_view(), name='alert_detail'),
+    path('event/<int:api_id>/', views.EventDetailView.as_view(), name='event_detail'),
 ]
